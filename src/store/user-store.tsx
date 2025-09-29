@@ -14,26 +14,36 @@ interface User {
 interface UserState {
   user: User | null;
   isOnboarded: boolean;
+  isLoading: boolean; // Add loading state
 }
 
 type UserAction =
   | { type: "SET_USER"; payload: User }
   | { type: "CLEAR_USER" }
-  | { type: "SET_ONBOARDED"; payload: boolean };
+  | { type: "SET_ONBOARDED"; payload: boolean }
+  | { type: "SET_LOADING"; payload: boolean };
 
 const initialState: UserState = {
   user: null,
   isOnboarded: false,
+  isLoading: true, // Start as loading
 };
 
 const userReducer = (state: UserState, action: UserAction): UserState => {
   switch (action.type) {
     case "SET_USER":
-      return { ...state, user: action.payload, isOnboarded: true };
+      return {
+        ...state,
+        user: action.payload,
+        isOnboarded: true,
+        isLoading: false,
+      };
     case "CLEAR_USER":
-      return initialState;
+      return { ...initialState, isLoading: false };
     case "SET_ONBOARDED":
       return { ...state, isOnboarded: action.payload };
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
     default:
       return state;
   }
@@ -54,7 +64,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   useEffect(() => {
-    if (state.user) {
+    if (state.user && !state.isLoading) {
       saveUserData();
     }
   }, [state.user]);
@@ -62,13 +72,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const loadUserData = async () => {
     try {
       const userData = await AsyncStorage.getItem("user_data");
+      console.log(userData);
       if (userData) {
         const user = JSON.parse(userData);
         user.dateOfBirth = new Date(user.dateOfBirth);
         dispatch({ type: "SET_USER", payload: user });
+      } else {
+        dispatch({ type: "SET_LOADING", payload: false });
       }
     } catch (error) {
       console.error("Error loading user data:", error);
+      dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
@@ -115,18 +129,19 @@ export const useUserStore = () => {
       weeksLived,
       totalWeeks,
     };
-
+    console.log(user);
     dispatch({ type: "SET_USER", payload: user });
   };
 
-  const clearUser = () => {
-    AsyncStorage.removeItem("user_data");
+  const clearUser = async () => {
+    await AsyncStorage.removeItem("user_data");
     dispatch({ type: "CLEAR_USER" });
   };
 
   return {
     user: state.user,
     isOnboarded: state.isOnboarded,
+    isLoading: state.isLoading,
     setUser,
     clearUser,
   };

@@ -1,32 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
-import { RelativePathString, router } from "expo-router";
+import React from "react";
+import { View, StyleSheet, Dimensions, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useUserStore } from "@/src/store/user-store";
-
 import { Text } from "@/src/components/ui/text";
 import { LifeTable } from "@/src/components/life-table";
 
 const { height } = Dimensions.get("window");
 
 export default function HomeScreen() {
-  const { user, isOnboarded } = useUserStore();
-  const [isMounted, setIsMounted] = useState(false);
+  const { user, isLoading } = useUserStore();
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (isMounted && !isOnboarded) {
-      router.replace("/onboarding/" as RelativePathString);
-    }
-  }, [isOnboarded, isMounted]);
-
-  if (!isMounted || !user) {
+  if (isLoading || !user) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FAFF00" />
           <Text variant="body" style={styles.loadingText}>
             Loading...
           </Text>
@@ -56,6 +44,7 @@ export default function HomeScreen() {
               {user.currentAge} years
             </Text>
           </View>
+
           <View style={styles.statItem}>
             <Text variant="caption" style={styles.statLabel}>
               Life Expectancy
@@ -64,6 +53,7 @@ export default function HomeScreen() {
               {user.lifeExpectancy} years
             </Text>
           </View>
+
           <View style={styles.statItem}>
             <Text variant="caption" style={styles.statLabel}>
               Weeks Lived

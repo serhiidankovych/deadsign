@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
   ScrollView,
   TextInput,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -18,13 +19,11 @@ import { useUserStore } from "@/src/store/user-store";
 import { calculateLifeExpectancy } from "@/src/utils/life-expactancy";
 
 export default function ModalScreen() {
-  const { user, setUser } = useUserStore();
+  const { user, isLoading, setUser } = useUserStore();
 
-  const [name, setName] = useState(user?.name || "");
-  const [dateOfBirth, setDateOfBirth] = useState(
-    user?.dateOfBirth || new Date()
-  );
-  const [country, setCountry] = useState(user?.country || "Ukraine");
+  const [name, setName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+  const [country, setCountry] = useState("Ukraine");
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const countries = [
@@ -34,6 +33,15 @@ export default function ModalScreen() {
     { name: "Japan", flag: "🇯🇵" },
     { name: "United Kingdom", flag: "🇬🇧" },
   ];
+
+  // Update state when user data loads
+  useEffect(() => {
+    if (user && !isLoading) {
+      setName(user.name || "");
+      setDateOfBirth(user.dateOfBirth || new Date());
+      setCountry(user.country || "Ukraine");
+    }
+  }, [user, isLoading]);
 
   const handleSave = () => {
     const lifeExpectancy = calculateLifeExpectancy(dateOfBirth, country);
@@ -45,6 +53,18 @@ export default function ModalScreen() {
     });
     router.back();
   };
+
+  // Show loading indicator while data is loading
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FAFF00" />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -130,6 +150,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0E0D0D",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: "#FFF",
+    marginTop: 16,
+    fontSize: 16,
   },
   header: {
     flexDirection: "row",
