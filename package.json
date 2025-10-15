@@ -43,7 +43,10 @@
     "@react-native-picker/picker": "2.11.1",
     "expo-linear-gradient": "~15.0.7",
     "expo-video": "~3.0.11",
-    "expo-dev-client": "~6.0.12"
+    "expo-dev-client": "~6.0.12",
+    "@shopify/react-native-skia": "2.2.12",
+    "react-native-view-shot": "4.0.3",
+    "expo-file-system": "~19.0.16"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",

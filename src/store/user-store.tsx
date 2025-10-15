@@ -1,5 +1,13 @@
-import React, { createContext, useContext, useReducer, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { File, Paths } from "expo-file-system";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+} from "react";
+import { AppState } from "react-native";
 
 interface User {
   name: string;
@@ -14,7 +22,7 @@ interface User {
 interface UserState {
   user: User | null;
   isOnboarded: boolean;
-  isLoading: boolean; // Add loading state
+  isLoading: boolean;
 }
 
 type UserAction =
@@ -26,7 +34,29 @@ type UserAction =
 const initialState: UserState = {
   user: null,
   isOnboarded: false,
-  isLoading: true, // Start as loading
+  isLoading: true,
+};
+
+const CACHE_TIMESTAMP_KEY = "life_table_cache_timestamp";
+
+const isNewDay = (timestamp1: number, timestamp2: number) => {
+  const date1 = new Date(timestamp1).toDateString();
+  const date2 = new Date(timestamp2).toDateString();
+  return date1 !== date2;
+};
+
+const recalculateLiveUserData = (user: User): User => {
+  const now = new Date();
+  const dob = new Date(user.dateOfBirth);
+
+  const currentAge = Math.floor(
+    (now.getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+  );
+  const weeksLived = Math.floor(
+    (now.getTime() - dob.getTime()) / (7 * 24 * 60 * 60 * 1000)
+  );
+
+  return { ...user, currentAge, weeksLived };
 };
 
 const userReducer = (state: UserState, action: UserAction): UserState => {
@@ -58,25 +88,63 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(userReducer, initialState);
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
     loadUserData();
   }, []);
 
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     if (state.user && !state.isLoading) {
       saveUserData();
     }
   }, [state.user]);
 
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState: string) => {
+      if (nextAppState !== "active" || !state.user) {
+        return;
+      }
+
+      try {
+        const timestampStr = await AsyncStorage.getItem(CACHE_TIMESTAMP_KEY);
+        const lastUpdateTimestamp = timestampStr
+          ? parseInt(timestampStr, 10)
+          : 0;
+
+        if (isNewDay(lastUpdateTimestamp, Date.now())) {
+          const updatedUser = recalculateLiveUserData(state.user);
+          dispatch({ type: "SET_USER", payload: updatedUser });
+        }
+      } catch (error) {
+        console.error("Failed to check for daily update:", error);
+      }
+    };
+
+    handleAppStateChange("active");
+
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [state.user]);
+
   const loadUserData = async () => {
     try {
       const userData = await AsyncStorage.getItem("user_data");
-      console.log(userData);
       if (userData) {
         const user = JSON.parse(userData);
         user.dateOfBirth = new Date(user.dateOfBirth);
-        dispatch({ type: "SET_USER", payload: user });
+        const freshUser = recalculateLiveUserData(user);
+        dispatch({ type: "SET_USER", payload: freshUser });
       } else {
         dispatch({ type: "SET_LOADING", payload: false });
       }
@@ -88,7 +156,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const saveUserData = async () => {
     try {
-      await AsyncStorage.setItem("user_data", JSON.stringify(state.user));
+      if (state.user) {
+        await AsyncStorage.setItem("user_data", JSON.stringify(state.user));
+      }
     } catch (error) {
       console.error("Error saving user data:", error);
     }
@@ -112,29 +182,34 @@ export const useUserStore = () => {
   const setUser = (
     userData: Omit<User, "currentAge" | "weeksLived" | "totalWeeks">
   ) => {
-    const now = new Date();
-    const currentAge = Math.floor(
-      (now.getTime() - userData.dateOfBirth.getTime()) /
-        (365.25 * 24 * 60 * 60 * 1000)
-    );
-    const weeksLived = Math.floor(
-      (now.getTime() - userData.dateOfBirth.getTime()) /
-        (7 * 24 * 60 * 60 * 1000)
-    );
     const totalWeeks = userData.lifeExpectancy * 52;
-
-    const user: User = {
+    const user = recalculateLiveUserData({
       ...userData,
-      currentAge,
-      weeksLived,
+      currentAge: 0,
+      weeksLived: 0,
       totalWeeks,
-    };
-    console.log(user);
+    });
     dispatch({ type: "SET_USER", payload: user });
+  };
+
+  const refreshUser = () => {
+    if (state.user) {
+      const updatedUser = recalculateLiveUserData(state.user);
+      dispatch({ type: "SET_USER", payload: updatedUser });
+    }
   };
 
   const clearUser = async () => {
     await AsyncStorage.removeItem("user_data");
+    const CACHE_FILE = new File(Paths.document, "life_table_cache.png");
+    try {
+      if (await CACHE_FILE.exists) {
+        await CACHE_FILE.delete();
+      }
+      await AsyncStorage.removeItem(CACHE_TIMESTAMP_KEY);
+    } catch (error) {
+      console.error("Error clearing LifeTable cache:", error);
+    }
     dispatch({ type: "CLEAR_USER" });
   };
 
@@ -144,5 +219,6 @@ export const useUserStore = () => {
     isLoading: state.isLoading,
     setUser,
     clearUser,
+    refreshUser,
   };
 };
