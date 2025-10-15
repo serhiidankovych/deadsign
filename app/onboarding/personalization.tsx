@@ -1,28 +1,31 @@
+import { useOnboardingStore } from "@/src/store/onboarding-store";
 import { LinearGradient } from "expo-linear-gradient";
+import { RelativePathString, router } from "expo-router";
+import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useState } from "react";
 import {
-  View,
-  StyleSheet,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
+  TextInput,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { RelativePathString, router } from "expo-router";
-import { useOnboardingStore } from "@/src/store/onboarding-store";
-import { VideoView, useVideoPlayer } from "expo-video";
 
-import { Text } from "@/src/components/ui/text";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
 
 export default function PersonalizationScreen() {
   const { onboardingData, updateOnboardingData } = useOnboardingStore();
   const [name, setName] = useState(onboardingData.name || "");
-  const player = useVideoPlayer(require("./"), (player) => {
-    player.loop = true;
-    player.play();
-  });
+  const player = useVideoPlayer(
+    require("../../assets/videos/intro-background-video.mp4"),
+    (player) => {
+      player.loop = true;
+      player.play();
+    }
+  );
 
   const handleContinue = () => {
     player.pause();
@@ -137,7 +140,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 16,
   },
-  // Enhanced styles for title and subtitle with better contrast
+
   title: {
     color: "#FFF",
     fontSize: 32,
@@ -176,13 +179,13 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingBottom: 30,
-    paddingHorizontal: 20, // 🔑 keeps input nicely inset
+    paddingHorizontal: 20,
   },
 
   inputCard: {
     backgroundColor: "transparent",
     borderColor: "transparent",
-    width: "100%", // 🔑 make Card full width
+    width: "100%",
   },
 
   input: {
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.2)",
-    width: "100%", // 🔑 ensure TextInput fills Card
+    width: "100%",
   },
 
   buttonWrapper: {

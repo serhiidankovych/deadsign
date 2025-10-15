@@ -1,16 +1,25 @@
-import React from "react";
-import { View, StyleSheet, Dimensions, ActivityIndicator } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useUserStore } from "@/src/store/user-store";
-import { Text } from "@/src/components/ui/text";
 import { LifeTable } from "@/src/components/life-table";
+import { Text } from "@/src/components/ui/text";
+import { useUserStore } from "@/src/store/user-store";
+import { useRouter } from "expo-router";
+import React from "react";
+import { ActivityIndicator, Dimensions, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { height } = Dimensions.get("window");
 
 export default function HomeScreen() {
-  const { user, isLoading } = useUserStore();
+  const { user, isLoading, isOnboarded } = useUserStore();
+  const router = useRouter();
 
-  if (isLoading || !user) {
+  console.log("🏠 HomeScreen render:", {
+    isLoading,
+    isOnboarded,
+    hasUser: !!user,
+  });
+
+  if (isLoading) {
+    console.log("⏳ Still loading...");
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -22,6 +31,22 @@ export default function HomeScreen() {
       </SafeAreaView>
     );
   }
+
+  if (!isOnboarded || !user) {
+    console.log("⚠️  User not onboarded, should redirect to /onboarding");
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text variant="body" style={styles.errorText}>
+            Please complete onboarding first
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  console.log("✅ Rendering home screen for user:", user.name);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -84,6 +109,11 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: "#FAFF00",
+    marginTop: 16,
+  },
+  errorText: {
+    color: "#FF6B6B",
+    marginTop: 16,
   },
   content: {
     padding: 20,

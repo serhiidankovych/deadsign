@@ -34,7 +34,6 @@ export default function ModalScreen() {
     { name: "United Kingdom", flag: "🇬🇧" },
   ];
 
-  // Update state when user data loads
   useEffect(() => {
     if (user && !isLoading) {
       setName(user.name || "");
@@ -54,7 +53,6 @@ export default function ModalScreen() {
     router.back();
   };
 
-  // Show loading indicator while data is loading
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>

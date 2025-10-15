@@ -1,13 +1,13 @@
-import React from "react";
-import { View, StyleSheet, ImageBackground } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Text } from "../../src/components/ui/text";
+import React from "react";
+import { ImageBackground, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../src/components/ui/button";
+import { Text } from "../../src/components/ui/text";
 
-import { quotes } from "../../src/data/quotes";
 import { useOnboardingStore } from "@/src/store/onboarding-store";
 import { useUserStore } from "@/src/store/user-store";
+import { quotes } from "../../src/data/quotes";
 
 export default function FinalScreen() {
   const { onboardingData, clearOnboardingData } = useOnboardingStore();
@@ -68,13 +68,11 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: "space-between", // Pushes header to top, button to bottom
+    justifyContent: "space-between",
     padding: 20,
   },
   header: {
-    // We remove `flex: 1` and `justifyContent: 'center'`
-    // to align the content to the top.
-    paddingTop: 40, // Add some spacing from the top edge
+    paddingTop: 40,
   },
   greeting: {
     color: "#FAFF00",

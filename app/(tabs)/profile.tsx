@@ -1,11 +1,11 @@
-import React from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { RelativePathString, router } from "expo-router";
+import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
-import { Button } from "@/src/components/ui/button";
 import { useUserStore } from "@/src/store/user-store";
+import { RelativePathString, router } from "expo-router";
+import React from "react";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
   const { user, clearUser } = useUserStore();
