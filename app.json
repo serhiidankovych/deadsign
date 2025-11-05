@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true
     },
-    "android": {
+     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#0E0D0D",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -20,7 +20,12 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.deadsign.lifeplanner"
+      "package": "com.deadsign.lifeplanner",
+      "permissions": [
+        "POST_NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM",
+        "USE_EXACT_ALARM"
+      ]
     },
     "web": {
       "output": "static",

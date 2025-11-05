@@ -1,6 +1,7 @@
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
+import { NotificationSettings } from "@/src/features/notification/components/notification-settings";
 import { useUserStore } from "@/src/store/user-store";
 import { RelativePathString, router } from "expo-router";
 import React from "react";
@@ -80,6 +81,8 @@ export default function ProfileScreen() {
           </View>
         </Card>
 
+        <NotificationSettings />
+
         <Card style={styles.settingsCard}>
           <Text variant="subtitle" style={styles.sectionTitle}>
             Settings
@@ -136,6 +139,7 @@ const styles = StyleSheet.create({
   },
   settingsCard: {
     gap: 16,
+    marginTop: 20,
   },
   sectionTitle: {
     color: "#FAFF00",
