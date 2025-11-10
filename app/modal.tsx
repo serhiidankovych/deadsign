@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from "react";
+// app/modal.tsx
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TextInput,
   Pressable,
-  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
 
-import { Ionicons } from "@expo/vector-icons";
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
+import { Ionicons } from "@expo/vector-icons";
 
 import { Button } from "@/src/components/ui/button";
+import { Colors } from "@/src/constants/colors";
 import { useUserStore } from "@/src/store/user-store";
 import { calculateLifeExpectancy } from "@/src/utils/life-expactancy";
 
 export default function ModalScreen() {
-  const { user, isLoading, setUser } = useUserStore();
+  const { user, setUser } = useUserStore();
 
   const [name, setName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
@@ -35,12 +36,12 @@ export default function ModalScreen() {
   ];
 
   useEffect(() => {
-    if (user && !isLoading) {
+    if (user) {
       setName(user.name || "");
       setDateOfBirth(user.dateOfBirth || new Date());
       setCountry(user.country || "Ukraine");
     }
-  }, [user, isLoading]);
+  }, [user]);
 
   const handleSave = () => {
     const lifeExpectancy = calculateLifeExpectancy(dateOfBirth, country);
@@ -53,22 +54,11 @@ export default function ModalScreen() {
     router.back();
   };
 
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FAFF00" />
-          <Text style={styles.loadingText}>Loading...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.closeButton}>
-          <Ionicons name="close" size={24} color="#FFF" />
+          <Ionicons name="close" size={24} color={Colors.textPrimary} />
         </Pressable>
         <Text variant="subtitle" style={styles.title}>
           Edit Profile
@@ -86,7 +76,7 @@ export default function ModalScreen() {
             value={name}
             onChangeText={setName}
             placeholder="Enter your name"
-            placeholderTextColor="#666"
+            placeholderTextColor={Colors.placeholder}
           />
         </Card>
 
@@ -101,7 +91,7 @@ export default function ModalScreen() {
             <Text style={styles.dateText}>
               {dateOfBirth.toLocaleDateString()}
             </Text>
-            <Ionicons name="calendar" size={20} color="#666" />
+            <Ionicons name="calendar" size={20} color={Colors.textMuted} />
           </Pressable>
         </Card>
 
@@ -129,7 +119,11 @@ export default function ModalScreen() {
                   {item.name}
                 </Text>
                 {country === item.name && (
-                  <Ionicons name="checkmark" size={20} color="#FAFF00" />
+                  <Ionicons
+                    name="checkmark"
+                    size={20}
+                    color={Colors.accentPrimary}
+                  />
                 )}
               </Pressable>
             ))}
@@ -147,17 +141,7 @@ export default function ModalScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0E0D0D",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    color: "#FFF",
-    marginTop: 16,
-    fontSize: 16,
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -165,13 +149,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    borderBottomColor: Colors.border,
   },
   closeButton: {
     padding: 8,
   },
   title: {
-    color: "#FFF",
+    color: Colors.textPrimary,
   },
   placeholder: {
     width: 40,
@@ -183,20 +167,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionLabel: {
-    color: "#999",
+    color: Colors.textSecondary,
     marginBottom: 12,
     fontSize: 14,
     fontWeight: "600",
   },
   input: {
-    backgroundColor: "#333",
+    backgroundColor: Colors.inputBackground,
     padding: 16,
     borderRadius: 12,
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 16,
   },
   dateButton: {
-    backgroundColor: "#333",
+    backgroundColor: Colors.inputBackground,
     padding: 16,
     borderRadius: 12,
     flexDirection: "row",
@@ -204,7 +188,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dateText: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 16,
   },
   countryList: {
@@ -214,14 +198,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#333",
+    backgroundColor: Colors.inputBackground,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: "transparent",
   },
   countryItemSelected: {
-    borderColor: "#FAFF00",
-    backgroundColor: "#2A2A00",
+    borderColor: Colors.selectedBorder,
+    backgroundColor: Colors.selectedBackground,
   },
   flag: {
     fontSize: 20,
@@ -229,11 +213,11 @@ const styles = StyleSheet.create({
   },
   countryName: {
     flex: 1,
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 16,
   },
   countryNameSelected: {
-    color: "#FAFF00",
+    color: Colors.accentPrimary,
   },
   saveButton: {
     marginTop: 20,

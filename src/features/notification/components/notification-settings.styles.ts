@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
 
+import { Colors } from "@/src/constants/colors";
+
 export const styles = StyleSheet.create({
   container: {
     gap: 16,
   },
   title: {
-    color: "#FAFF00",
+    color: Colors.textMuted,
     marginBottom: 8,
   },
   settingRow: {
@@ -18,17 +20,17 @@ export const styles = StyleSheet.create({
     marginRight: 16,
   },
   label: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   description: {
-    color: "#999",
+    color: Colors.textSecondary,
   },
   timePickerContainer: {
     marginTop: 8,
   },
   timeLabel: {
-    color: "#999",
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   timeButton: {

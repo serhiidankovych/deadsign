@@ -1,3 +1,4 @@
+import { Colors } from "@/src/constants/colors";
 import React from "react";
 import { Pressable, StyleSheet, ViewStyle } from "react-native";
 import { Text } from "./text";
@@ -41,15 +42,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   primary: {
-    backgroundColor: "#FAFF00",
+    backgroundColor: Colors.accentPrimary,
   },
   secondary: {
-    backgroundColor: "#1B1A1A",
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: "#333",
+    borderColor: Colors.border,
   },
   danger: {
-    backgroundColor: "#FF3B30",
+    backgroundColor: Colors.error,
   },
   disabled: {
     opacity: 0.5,
@@ -59,12 +60,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   primaryText: {
-    color: "#0E0D0D",
+    color: Colors.background,
   },
   secondaryText: {
-    color: "#FFF",
+    color: Colors.textPrimary,
   },
   dangerText: {
-    color: "#FFF",
+    color: Colors.textPrimary,
   },
 });

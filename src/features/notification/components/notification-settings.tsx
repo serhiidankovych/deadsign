@@ -12,7 +12,6 @@ import {
   sendLocalNotification,
 } from "@/src/features/notification/utils/notifications";
 
-import { ActionButtons } from "./action-buttons";
 import { styles } from "./notification-settings.styles";
 import { TimePickerSection } from "./time-picker-section";
 import { ToggleSection } from "./toggle-section";
@@ -152,10 +151,10 @@ export function NotificationSettings() {
             />
           )}
 
-          <ActionButtons
+          {/* <ActionButtons
             onTest={handleTestNotification}
             onViewScheduled={handleViewScheduled}
-          />
+          /> */}
         </>
       )}
     </Card>
