@@ -1,19 +1,46 @@
+import { Colors } from "@/src/constants/colors";
 import React from "react";
-import { View, StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet, View, ViewProps, ViewStyle } from "react-native";
 
-interface CardProps {
+interface CardProps extends ViewProps {
   children: React.ReactNode;
   style?: ViewStyle;
+  variant?: "default" | "secondary";
 }
 
-export const Card: React.FC<CardProps> = ({ children, style }) => {
-  return <View style={[styles.card, style]}>{children}</View>;
+export const Card: React.FC<CardProps> = ({
+  children,
+  style,
+  variant = "default",
+  ...rest
+}) => {
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor:
+            variant === "secondary" ? Colors.surfaceSecondary : Colors.surface,
+        },
+        style,
+      ]}
+      {...rest}
+    >
+      {children}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#1B1A1A",
     borderRadius: 16,
     padding: 20,
+    borderWidth: 1,
+    borderColor: Colors.surfaceSecondary,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 3,
   },
 });

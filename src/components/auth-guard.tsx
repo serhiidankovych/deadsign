@@ -2,10 +2,16 @@ import { Loading } from "@/src/components/ui/loading";
 import { Colors } from "@/src/constants/colors";
 import { useUserStore } from "@/src/store/user-store";
 import { Redirect } from "expo-router";
+import React from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Index() {
+interface AuthGuardProps {
+  children: React.ReactNode;
+  requireAuth?: boolean;
+}
+
+export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const { isOnboarded, isLoading } = useUserStore();
 
   if (isLoading) {
@@ -16,11 +22,11 @@ export default function Index() {
     );
   }
 
-  if (isOnboarded) {
-    return <Redirect href="/(tabs)" />;
+  if (requireAuth && !isOnboarded) {
+    return <Redirect href="/onboarding" />;
   }
 
-  return <Redirect href="/onboarding" />;
+  return <>{children}</>;
 }
 
 const styles = StyleSheet.create({

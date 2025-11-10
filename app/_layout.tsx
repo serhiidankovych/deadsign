@@ -1,5 +1,6 @@
+import { Colors } from "@/src/constants/colors";
 import { NotificationProvider } from "@/src/features/notification/store/notification-provider";
-import { OnboardingProvider } from "@/src/store/onboarding-store";
+import { OnboardingProvider } from "@/src/features/onboarding/store/onboarding-store";
 import { UserProvider } from "@/src/store/user-store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
@@ -16,7 +17,7 @@ export default function RootLayout() {
             <Stack
               screenOptions={{
                 headerShown: false,
-                contentStyle: { backgroundColor: "#0E0D0D" },
+                contentStyle: { backgroundColor: Colors.background },
               }}
             >
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -26,7 +27,8 @@ export default function RootLayout() {
               />
               <Stack.Screen name="modal" options={{ presentation: "modal" }} />
             </Stack>
-            <StatusBar style="light" backgroundColor="#0E0D0D" />
+
+            <StatusBar style="light" backgroundColor={Colors.background} />
           </NotificationProvider>
         </UserProvider>
       </OnboardingProvider>

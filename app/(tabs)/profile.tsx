@@ -1,6 +1,7 @@
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
+import { Colors } from "@/src/constants/colors";
 import { NotificationSettings } from "@/src/features/notification/components/notification-settings";
 import { useUserStore } from "@/src/store/user-store";
 import { RelativePathString, router } from "expo-router";
@@ -110,13 +111,13 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0E0D0D",
+    backgroundColor: Colors.background,
   },
   scrollContent: {
     padding: 20,
   },
   title: {
-    color: "#FAFF00",
+    color: Colors.textPrimary,
     marginBottom: 30,
   },
   userInfo: {
@@ -128,13 +129,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    borderBottomColor: Colors.border,
   },
   label: {
-    color: "#999",
+    color: Colors.textSecondary,
   },
   value: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontWeight: "600",
   },
   settingsCard: {
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   sectionTitle: {
-    color: "#FAFF00",
+    color: Colors.textMuted,
     marginBottom: 8,
   },
   settingButton: {

@@ -1,4 +1,4 @@
-import { useOnboardingStore } from "@/src/store/onboarding-store";
+import { useOnboardingStore } from "@/src/features/onboarding/store/onboarding-store";
 import { LinearGradient } from "expo-linear-gradient";
 import { RelativePathString, router } from "expo-router";
 import { VideoView, useVideoPlayer } from "expo-video";
@@ -15,10 +15,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
+import { Colors } from "@/src/constants/colors";
 
 export default function PersonalizationScreen() {
   const { onboardingData, updateOnboardingData } = useOnboardingStore();
   const [name, setName] = useState(onboardingData.name || "");
+
   const player = useVideoPlayer(
     require("../../assets/videos/intro-background-video.mp4"),
     (player) => {
@@ -80,7 +82,7 @@ export default function PersonalizationScreen() {
                   value={name}
                   onChangeText={setName}
                   placeholder="Enter your name"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={Colors.textMuted}
                   autoCapitalize="words"
                   autoComplete="name"
                   returnKeyType="done"
@@ -125,24 +127,14 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
   headerContent: {
-    position: "relative",
     alignItems: "center",
     paddingVertical: 30,
     paddingHorizontal: 20,
     borderRadius: 16,
     overflow: "hidden",
   },
-  headerGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 16,
-  },
-
   title: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 16,
@@ -150,10 +142,9 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 0.8)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
-    zIndex: 1,
   },
   subtitle: {
-    color: "#FFF",
+    color: Colors.textSecondary,
     textAlign: "center",
     fontSize: 14,
     lineHeight: 26,
@@ -162,7 +153,6 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 0.6)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
-    zIndex: 1,
   },
   footer: {
     position: "absolute",
@@ -181,24 +171,21 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingHorizontal: 20,
   },
-
   inputCard: {
     backgroundColor: "transparent",
     borderColor: "transparent",
     width: "100%",
   },
-
   input: {
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: Colors.inputBackground,
     padding: 16,
     borderRadius: 12,
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: Colors.surfaceSecondary,
     width: "100%",
   },
-
   buttonWrapper: {
     position: "relative",
     borderRadius: 12,

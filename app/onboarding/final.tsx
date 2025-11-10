@@ -1,3 +1,4 @@
+import { Colors } from "@/src/constants/colors";
 import { router } from "expo-router";
 import React from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
@@ -5,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../src/components/ui/button";
 import { Text } from "../../src/components/ui/text";
 
-import { useOnboardingStore } from "@/src/store/onboarding-store";
+import { useOnboardingStore } from "@/src/features/onboarding/store/onboarding-store";
 import { useUserStore } from "@/src/store/user-store";
 import { quotes } from "../../src/data/quotes";
 
@@ -75,18 +76,17 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
   greeting: {
-    color: "#FAFF00",
+    color: Colors.textPrimary,
     textAlign: "center",
     marginBottom: 40,
   },
   quoteContainer: {
-    backgroundColor: "rgba(27, 26, 26, 0.8)",
+    backgroundColor: Colors.surfaceSecondary,
     padding: 24,
     borderRadius: 16,
     marginHorizontal: 10,
   },
   quote: {
-    color: "#FFF",
     fontSize: 18,
     lineHeight: 26,
     fontStyle: "italic",
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   author: {
-    color: "#999",
+    color: Colors.textMuted,
     textAlign: "center",
   },
   continueButton: {

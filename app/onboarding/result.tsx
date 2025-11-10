@@ -1,11 +1,12 @@
-import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Button } from "@/src/components/ui/button";
+import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
+import { Colors } from "@/src/constants/colors";
+import { useOnboardingStore } from "@/src/features/onboarding/store/onboarding-store";
 import { RelativePathString, router } from "expo-router";
-import { Text } from "../../src/components/ui/text";
-import { Button } from "../../src/components/ui/button";
-import { Card } from "../../src/components/ui/card";
-import { useOnboardingStore } from "@/src/store/onboarding-store";
+import React from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ResultScreen() {
   const { onboardingData } = useOnboardingStore();
@@ -175,7 +176,7 @@ export default function ResultScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0E0D0D",
+    backgroundColor: Colors.background,
   },
   content: {
     flex: 1,
@@ -191,28 +192,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     textAlign: "center",
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 8,
   },
   subtitle: {
-    color: "#999",
+    color: Colors.textSecondary,
     textAlign: "center",
     fontSize: 16,
   },
   mainStatsCard: {
     marginBottom: 24,
     padding: 24,
-    backgroundColor: "#1A1A1A",
+    backgroundColor: Colors.surface,
     borderRadius: 16,
   },
   progressSection: {
     marginBottom: 20,
   },
   progressLabel: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 12,
@@ -226,17 +227,17 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 8,
-    backgroundColor: "#333",
+    backgroundColor: Colors.surfaceSecondary,
     borderRadius: 4,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#FAFF00",
+    backgroundColor: Colors.accentPrimary,
     borderRadius: 4,
   },
   progressText: {
-    color: "#FAFF00",
+    color: Colors.accentPrimary,
     fontSize: 14,
     fontWeight: "600",
     minWidth: 45,
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: "#333",
+    backgroundColor: Colors.surfaceSecondary,
     marginVertical: 20,
   },
   statsGrid: {
@@ -257,40 +258,40 @@ const styles = StyleSheet.create({
     minWidth: "45%",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#2A2A2A",
+    backgroundColor: Colors.surfaceSecondary,
     borderRadius: 12,
   },
   statLabel: {
-    color: "#999",
+    color: Colors.textMuted,
     fontSize: 14,
     marginBottom: 8,
     textAlign: "center",
   },
   statValue: {
-    color: "#FAFF00",
+    color: Colors.accentPrimary,
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 4,
   },
   statUnit: {
-    color: "#666",
+    color: Colors.textMuted,
     fontSize: 12,
   },
   previewCard: {
     marginBottom: 24,
     padding: 24,
-    backgroundColor: "#1A1A1A",
+    backgroundColor: Colors.surface,
     borderRadius: 16,
   },
   previewLabel: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 8,
     textAlign: "center",
   },
   previewDescription: {
-    color: "#999",
+    color: Colors.textSecondary,
     fontSize: 14,
     textAlign: "center",
     marginBottom: 20,
@@ -305,11 +306,11 @@ const styles = StyleSheet.create({
   miniWeek: {
     width: 10,
     height: 10,
-    backgroundColor: "#333",
+    backgroundColor: Colors.surfaceSecondary,
     borderRadius: 2,
   },
   miniWeekLived: {
-    backgroundColor: "#FAFF00",
+    backgroundColor: Colors.accentPrimary,
   },
   legend: {
     flexDirection: "row",
@@ -327,31 +328,14 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   legendDotLived: {
-    backgroundColor: "#FAFF00",
+    backgroundColor: Colors.accentPrimary,
   },
   legendDotRemaining: {
-    backgroundColor: "#333",
+    backgroundColor: Colors.surfaceSecondary,
   },
   legendText: {
-    color: "#999",
+    color: Colors.textSecondary,
     fontSize: 14,
-  },
-  infoCard: {
-    marginBottom: 24,
-    padding: 20,
-    backgroundColor: "#1A1A1A",
-    borderRadius: 16,
-    alignItems: "center",
-  },
-  infoLabel: {
-    color: "#999",
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  countryText: {
-    color: "#FAFF00",
-    fontSize: 16,
-    fontWeight: "600",
   },
   spacer: {
     height: 20,
@@ -361,15 +345,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#0E0D0D",
+    backgroundColor: Colors.background,
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 20,
     borderTopWidth: 1,
-    borderTopColor: "#333",
+    borderTopColor: Colors.surfaceSecondary,
   },
   nextButton: {
-    backgroundColor: "#FAFF00",
+    backgroundColor: Colors.accentPrimary,
     borderRadius: 12,
     paddingVertical: 16,
   },
@@ -380,17 +364,17 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   errorTitle: {
-    color: "#FAFF00",
+    color: Colors.accentPrimary,
     textAlign: "center",
     marginBottom: 16,
   },
   errorMessage: {
-    color: "#999",
+    color: Colors.textMuted,
     textAlign: "center",
     marginBottom: 24,
   },
   backButton: {
     minWidth: 200,
-    backgroundColor: "#FAFF00",
+    backgroundColor: Colors.accentPrimary,
   },
 });

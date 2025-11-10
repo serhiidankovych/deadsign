@@ -1,11 +1,12 @@
-import React from "react";
-import { View, StyleSheet, Image, ImageBackground } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { RelativePathString, router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { RelativePathString, router } from "expo-router";
+import React from "react";
+import { Image, ImageBackground, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Text } from "../../src/components/ui/text";
+import { Colors } from "@/src/constants/colors";
 import { Button } from "../../src/components/ui/button";
+import { Text } from "../../src/components/ui/text";
 
 export default function IntroScreen() {
   return (
@@ -33,15 +34,16 @@ export default function IntroScreen() {
             </Text>
           </View>
         </View>
+
         <View style={styles.footer}>
           <LinearGradient
-            colors={["transparent", "rgba(14, 13, 13, 0.8)", "#0E0D0D"]}
+            colors={["transparent", "rgba(14, 13, 13, 0.8)", Colors.background]}
             style={styles.gradient}
           />
           <View style={styles.buttonContainer}>
             <Button
               onPress={() =>
-                router.push("/onboarding/life-expectancy" as RelativePathString)
+                router.push("/onboarding/date-of-birth" as RelativePathString)
               }
             >
               Get Started
@@ -77,14 +79,14 @@ const styles = StyleSheet.create({
     height: 270,
   },
   title: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 16,
     textAlign: "center",
   },
   subtitle: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     textAlign: "center",
     fontSize: 20,
     lineHeight: 26,
@@ -93,7 +95,7 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontSize: 20,
-    color: "#FAFF00",
+    color: Colors.accentPrimary,
     fontWeight: "bold",
     fontStyle: "italic",
   },

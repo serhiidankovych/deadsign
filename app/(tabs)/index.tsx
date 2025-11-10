@@ -1,97 +1,102 @@
-import { LifeTable } from "@/src/components/life-table";
 import { Text } from "@/src/components/ui/text";
+import { Colors } from "@/src/constants/colors";
+import { LifeTable } from "@/src/features/life-table/components/life-table";
 import { useUserStore } from "@/src/store/user-store";
-import { useRouter } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { ActivityIndicator, Dimensions, StyleSheet, View } from "react-native";
+import { DimensionValue, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const { height } = Dimensions.get("window");
-
 export default function HomeScreen() {
-  const { user, isLoading, isOnboarded } = useUserStore();
-  const router = useRouter();
+  const { user } = useUserStore();
+  if (!user) return null;
 
-  console.log("🏠 HomeScreen render:", {
-    isLoading,
-    isOnboarded,
-    hasUser: !!user,
-  });
-
-  if (isLoading) {
-    console.log("⏳ Still loading...");
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FAFF00" />
-          <Text variant="body" style={styles.loadingText}>
-            Loading...
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (!isOnboarded || !user) {
-    console.log("⚠️  User not onboarded, should redirect to /onboarding");
-
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text variant="body" style={styles.errorText}>
-            Please complete onboarding first
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  console.log("✅ Rendering home screen for user:", user.name);
+  const percentageLived = (
+    (user.weeksLived / (user.lifeExpectancy * 52)) *
+    100
+  ).toFixed(0);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <LinearGradient
+        colors={[Colors.surfaceSecondary, Colors.background]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.headerGradient}
+      >
         <View style={styles.header}>
           <Text variant="title" style={styles.greeting}>
             Hello, {user.name}
           </Text>
-          <Text variant="body" style={styles.subtitle}>
+
+          <Text variant="subtitle" style={styles.subtitle}>
             Your life in weeks
           </Text>
+
+          <View style={styles.progressRow}>
+            <View style={styles.progressBarBackground}>
+              <LinearGradient
+                colors={[
+                  Colors.progressBarStart,
+                  Colors.progressBarMiddle,
+                  Colors.progressBarEnd,
+                ]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[
+                  styles.progressBarFill,
+                  { width: `${percentageLived}%` as DimensionValue },
+                ]}
+              />
+            </View>
+            <Text variant="caption" style={styles.progressText}>
+              {percentageLived}%
+            </Text>
+          </View>
         </View>
 
-        <View style={styles.statsContainer}>
+        <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Text variant="caption" style={styles.statLabel}>
               Age
             </Text>
             <Text variant="subtitle" style={styles.statValue}>
-              {user.currentAge} years
+              {user.currentAge} yrs
             </Text>
           </View>
+
+          <MaterialIcons
+            name="arrow-forward-ios"
+            size={18}
+            color={Colors.textSecondary}
+            style={styles.arrowIcon}
+          />
 
           <View style={styles.statItem}>
             <Text variant="caption" style={styles.statLabel}>
-              Life Expectancy
+              Expectancy
             </Text>
             <Text variant="subtitle" style={styles.statValue}>
-              {user.lifeExpectancy} years
+              {user.lifeExpectancy} yrs
             </Text>
           </View>
+
+          <View style={styles.statDivider} />
 
           <View style={styles.statItem}>
             <Text variant="caption" style={styles.statLabel}>
-              Weeks Lived
+              Lived
             </Text>
             <Text variant="subtitle" style={styles.statValue}>
-              {user.weeksLived}
+              {user.weeksLived} wks
             </Text>
           </View>
         </View>
+      </LinearGradient>
 
-        <View style={styles.lifeTableContainer}>
-          <LifeTable user={user} />
-        </View>
+      <View style={styles.lifeTableContainer}>
+        <LifeTable user={user} />
       </View>
     </SafeAreaView>
   );
@@ -100,55 +105,96 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0E0D0D",
+    backgroundColor: Colors.background,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    color: "#FAFF00",
-    marginTop: 16,
-  },
-  errorText: {
-    color: "#FF6B6B",
-    marginTop: 16,
-  },
-  content: {
-    padding: 20,
-    flex: 1,
+  headerGradient: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 14,
   },
   greeting: {
-    color: "#FAFF00",
-    marginBottom: 8,
+    color: Colors.textPrimary,
+    marginBottom: 10,
+    fontSize: 22,
+    fontWeight: "700",
+    textAlign: "left",
   },
   subtitle: {
-    color: "#999",
+    color: Colors.textSecondary,
+    marginBottom: 10,
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "left",
   },
-  statsContainer: {
+  progressRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-    backgroundColor: "#1B1A1A",
-    padding: 20,
+    alignItems: "center",
+    gap: 10,
+  },
+  progressBarBackground: {
+    flex: 1,
+    height: 6,
+    backgroundColor: Colors.surfaceSecondary,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    borderRadius: 8,
+  },
+  progressText: {
+    color: Colors.textSecondary,
+    fontWeight: "600",
+    fontSize: 12,
+    minWidth: 30,
+  },
+  statsRow: {
+    backgroundColor: Colors.surface,
     borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   statItem: {
-    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
   },
   statLabel: {
-    color: "#666",
-    marginBottom: 4,
+    color: Colors.textMuted,
+    fontSize: 11,
+    marginBottom: 2,
+    textAlign: "center",
   },
   statValue: {
-    color: "#FAFF00",
+    color: Colors.textPrimary,
+    fontWeight: "600",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  arrowIcon: {
+    marginHorizontal: 8,
+  },
+  statDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: Colors.surfaceSecondary,
+    marginHorizontal: 8,
   },
   lifeTableContainer: {
-    height: height * 0.7,
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 16,
   },
 });

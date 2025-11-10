@@ -1,4 +1,5 @@
 import { Text } from "@/src/components/ui/text";
+import { Colors } from "@/src/constants/colors";
 import React from "react";
 import { Switch, View } from "react-native";
 import { styles } from "./notification-settings.styles";
@@ -29,8 +30,11 @@ export function ToggleSection({
       <Switch
         value={value}
         onValueChange={onToggle}
-        trackColor={{ false: "#333", true: "#FAFF00" }}
-        thumbColor={value ? "#0E0D0D" : "#999"}
+        trackColor={{
+          false: Colors.border,
+          true: Colors.accentPrimary,
+        }}
+        thumbColor={value ? Colors.accentPrimary : Colors.accentPrimary}
       />
     </View>
   );

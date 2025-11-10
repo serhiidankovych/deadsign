@@ -1,23 +1,26 @@
-import React, { useState } from "react";
-import { View, StyleSheet, ScrollView, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { RelativePathString, router } from "expo-router";
+import { Colors } from "@/src/constants/colors";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Text } from "../../src/components/ui/text";
+import { RelativePathString, router } from "expo-router";
+import React, { useState } from "react";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../src/components/ui/button";
 import { Card } from "../../src/components/ui/card";
-import { useOnboardingStore } from "../../src/store/onboarding-store";
+import { Text } from "../../src/components/ui/text";
+import { useOnboardingStore } from "../../src/features/onboarding/store/onboarding-store";
 import { calculateLifeExpectancy } from "../../src/utils/life-expactancy";
 
 export default function LifeExpectancyScreen() {
   const { onboardingData, updateOnboardingData } = useOnboardingStore();
-  const [dateOfBirth, setDateOfBirth] = useState(
-    onboardingData.dateOfBirth || new Date()
-  );
+  const dateOfBirth = onboardingData.dateOfBirth || new Date();
+
   const [country, setCountry] = useState(onboardingData.country || "Ukraine");
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [isManualMode, setIsManualMode] = useState(false);
-  const [manualDeathDate, setManualDeathDate] = useState(new Date());
+  const [manualDeathDate, setManualDeathDate] = useState(() => {
+    const defaultDate = new Date(dateOfBirth);
+    defaultDate.setFullYear(defaultDate.getFullYear() + 80);
+    return defaultDate;
+  });
   const [showManualDatePicker, setShowManualDatePicker] = useState(false);
 
   const countries = [
@@ -37,7 +40,6 @@ export default function LifeExpectancyScreen() {
       : calculateLifeExpectancy(dateOfBirth, country);
 
     updateOnboardingData({
-      dateOfBirth,
       country,
       lifeExpectancy,
     });
@@ -53,6 +55,12 @@ export default function LifeExpectancyScreen() {
     }
   };
 
+  const calculateExpectedYears = () =>
+    Math.floor(
+      (manualDeathDate.getTime() - dateOfBirth.getTime()) /
+        (1000 * 60 * 60 * 24 * 365.25)
+    );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -61,48 +69,10 @@ export default function LifeExpectancyScreen() {
             <Text variant="title" style={styles.title}>
               Life Expectancy Setup
             </Text>
-          </View>
-
-          <Card style={styles.section}>
-            <Text variant="body" style={styles.sectionLabel}>
-              Date of Birth
+            <Text style={styles.subtitle}>
+              Choose how to calculate your life expectancy
             </Text>
-            <Pressable
-              style={styles.dateButton}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text style={styles.dateText}>
-                {dateOfBirth.toLocaleDateString()}
-              </Text>
-              <Text style={styles.dateHint}>Tap to change</Text>
-            </Pressable>
-          </Card>
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={dateOfBirth}
-              mode="date"
-              display="default"
-              maximumDate={new Date()}
-              onChange={(event, selectedDate) => {
-                setShowDatePicker(false);
-                if (selectedDate) {
-                  setDateOfBirth(selectedDate);
-                  if (isManualMode) {
-                    const currentExpectancy = Math.floor(
-                      (manualDeathDate.getTime() - dateOfBirth.getTime()) /
-                        (1000 * 60 * 60 * 24 * 365.25)
-                    );
-                    const newDeathDate = new Date(selectedDate);
-                    newDeathDate.setFullYear(
-                      newDeathDate.getFullYear() + currentExpectancy
-                    );
-                    setManualDeathDate(newDeathDate);
-                  }
-                }
-              }}
-            />
-          )}
+          </View>
 
           <View style={styles.modeToggle}>
             <Pressable
@@ -154,7 +124,7 @@ export default function LifeExpectancyScreen() {
                   showsVerticalScrollIndicator={true}
                   nestedScrollEnabled={true}
                 >
-                  {countries.map((item, index) => (
+                  {countries.map((item) => (
                     <Pressable
                       key={item.name}
                       style={[
@@ -185,7 +155,6 @@ export default function LifeExpectancyScreen() {
                     </Pressable>
                   ))}
                 </ScrollView>
-                <View style={styles.scrollIndicator} />
               </View>
             </Card>
           ) : (
@@ -205,12 +174,7 @@ export default function LifeExpectancyScreen() {
 
               <View style={styles.selectionSummary}>
                 <Text style={styles.summaryText}>
-                  Expected lifespan:{" "}
-                  {Math.floor(
-                    (manualDeathDate.getTime() - dateOfBirth.getTime()) /
-                      (1000 * 60 * 60 * 24 * 365.25)
-                  )}{" "}
-                  years
+                  Expected lifespan: {calculateExpectedYears()} years
                 </Text>
               </View>
             </Card>
@@ -234,10 +198,11 @@ export default function LifeExpectancyScreen() {
           )}
           <View style={styles.spacer} />
         </View>
+
         <View style={styles.buttonContainer}>
           <Button
             onPress={handleContinue}
-            disabled={!dateOfBirth || (!country && !isManualMode)}
+            disabled={!country && !isManualMode}
             style={styles.continueButton}
           >
             Continue
@@ -251,7 +216,7 @@ export default function LifeExpectancyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0E0D0D",
+    backgroundColor: Colors.background,
   },
   content: {
     flex: 1,
@@ -261,29 +226,26 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 100,
   },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 100,
-  },
   header: {
     marginBottom: 30,
     alignItems: "center",
   },
   title: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     textAlign: "center",
     fontSize: 28,
     fontWeight: "bold",
+    marginBottom: 8,
   },
   subtitle: {
-    color: "#999",
+    color: Colors.textSecondary,
     textAlign: "center",
     fontSize: 16,
   },
   section: {
     marginBottom: 24,
     padding: 20,
-    backgroundColor: "#1A1A1A",
+    backgroundColor: Colors.surface,
     borderRadius: 16,
   },
   sectionHeader: {
@@ -293,37 +255,32 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionLabel: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     marginBottom: 12,
     fontSize: 16,
     fontWeight: "600",
   },
-  scrollHint: {
-    color: "#FAFF00",
-    fontSize: 12,
-    fontStyle: "italic",
-  },
   dateButton: {
-    backgroundColor: "#333",
+    backgroundColor: Colors.inputBackground,
     padding: 20,
     borderRadius: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#444",
+    borderColor: Colors.surfaceSecondary,
   },
   dateText: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 4,
   },
   dateHint: {
-    color: "#999",
+    color: Colors.textSecondary,
     fontSize: 14,
   },
   modeToggle: {
     flexDirection: "row",
-    backgroundColor: "#333",
+    backgroundColor: Colors.inputBackground,
     borderRadius: 12,
     padding: 4,
     marginBottom: 24,
@@ -336,15 +293,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   toggleButtonActive: {
-    backgroundColor: "#FAFF00",
+    backgroundColor: Colors.accentPrimary,
   },
   toggleText: {
-    color: "#999",
+    color: Colors.textSecondary,
     fontSize: 16,
     fontWeight: "600",
   },
   toggleTextActive: {
-    color: "#000",
+    color: Colors.background,
   },
   countryContainer: {
     position: "relative",
@@ -356,28 +313,19 @@ const styles = StyleSheet.create({
   countryScrollContent: {
     paddingBottom: 10,
   },
-  scrollIndicator: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: 4,
-    backgroundColor: "#333",
-    borderRadius: 2,
-  },
   countryItem: {
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#2A2A2A",
+    backgroundColor: Colors.surfaceSecondary,
     borderRadius: 12,
     marginBottom: 8,
     borderWidth: 2,
     borderColor: "transparent",
   },
   countryItemSelected: {
-    borderColor: "#FAFF00",
-    backgroundColor: "#2A2A00",
+    borderColor: Colors.accentPrimary,
+    backgroundColor: Colors.surface,
   },
   flag: {
     fontSize: 28,
@@ -387,40 +335,40 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   countryName: {
-    color: "#FFF",
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 2,
   },
   countryNameSelected: {
-    color: "#FAFF00",
+    color: Colors.accentPrimary,
   },
   lifeExpectancyText: {
-    color: "#999",
+    color: Colors.textSecondary,
     fontSize: 14,
   },
   selectedIndicator: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "#FAFF00",
+    backgroundColor: Colors.accentPrimary,
     alignItems: "center",
     justifyContent: "center",
   },
   checkmark: {
-    color: "#000",
+    color: Colors.background,
     fontSize: 14,
     fontWeight: "bold",
   },
   selectionSummary: {
     marginTop: 16,
     padding: 12,
-    backgroundColor: "#2A2A2A",
+    backgroundColor: Colors.surfaceSecondary,
     borderRadius: 8,
     alignItems: "center",
   },
   summaryText: {
-    color: "#FAFF00",
+    color: Colors.accentPrimary,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -432,15 +380,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#0E0D0D",
+    backgroundColor: Colors.background,
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 20,
     borderTopWidth: 1,
-    borderTopColor: "#333",
+    borderTopColor: Colors.surfaceSecondary,
   },
   continueButton: {
-    backgroundColor: "#FAFF00",
+    backgroundColor: Colors.accentPrimary,
     borderRadius: 12,
     paddingVertical: 16,
   },
