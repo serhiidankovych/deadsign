@@ -12,12 +12,24 @@ interface WeeksRendererProps {
 export const WeeksRenderer: React.FC<WeeksRendererProps> = ({ user }) => {
   const currentWeekProgress = useCurrentWeekProgress();
 
+  console.log("WeeksRenderer render:", {
+    weeksLived: user.weeksLived,
+    totalWeeks: user.totalWeeks,
+    currentWeekProgress,
+  });
+
   const renderWeeks = useMemo(() => {
+    console.log("Recalculating weeks array:", {
+      weeksLived: user.weeksLived,
+      totalWeeks: user.totalWeeks,
+      currentWeekProgress,
+    });
+
     const weeks = [];
+
     for (let weekIndex = 0; weekIndex < user.totalWeeks; weekIndex++) {
       const row = Math.floor(weekIndex / WEEKS_PER_ROW);
       const col = weekIndex % WEEKS_PER_ROW;
-
       const x = col * (SQUARE_SIZE + SQUARE_SPACING);
       const y = row * (SQUARE_SIZE + SQUARE_SPACING);
 
@@ -31,7 +43,7 @@ export const WeeksRenderer: React.FC<WeeksRendererProps> = ({ user }) => {
         color = Colors.lifeCurrent;
         width = SQUARE_SIZE * currentWeekProgress;
       } else if (isLived) {
-        color = Colors.lifePast;
+        color = Colors.error;
       }
 
       weeks.push(
@@ -60,6 +72,8 @@ export const WeeksRenderer: React.FC<WeeksRendererProps> = ({ user }) => {
         );
       }
     }
+
+    console.log(`Generated ${weeks.length} week elements`);
     return weeks;
   }, [user.weeksLived, user.totalWeeks, currentWeekProgress]);
 

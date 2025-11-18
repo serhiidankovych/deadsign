@@ -1,8 +1,10 @@
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
+import { ProgressBar } from "@/src/components/ui/progress-bar";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { useOnboardingStore } from "@/src/features/onboarding/store/onboarding-store";
+import { getUserLifeStats } from "@/src/utils/user-stats";
 import { RelativePathString, router } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -32,19 +34,8 @@ export default function ResultScreen() {
     );
   }
 
-  const currentAge = Math.floor(
-    (new Date().getTime() - onboardingData.dateOfBirth.getTime()) /
-      (365.25 * 24 * 60 * 60 * 1000)
-  );
-
-  const weeksLived = Math.floor(
-    (new Date().getTime() - onboardingData.dateOfBirth.getTime()) /
-      (7 * 24 * 60 * 60 * 1000)
-  );
-
-  const totalWeeks = onboardingData.lifeExpectancy * 52;
-  const remainingWeeks = totalWeeks - weeksLived;
-  const lifeProgress = (weeksLived / totalWeeks) * 100;
+  const { age, weeksLived, totalWeeks, remainingWeeks, lifeProgress } =
+    getUserLifeStats(onboardingData.dateOfBirth, onboardingData.lifeExpectancy);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -65,19 +56,7 @@ export default function ResultScreen() {
               <Text variant="body" style={styles.progressLabel}>
                 Life Progress
               </Text>
-              <View style={styles.progressBarContainer}>
-                <View style={styles.progressBar}>
-                  <View
-                    style={[
-                      styles.progressFill,
-                      { width: `${Math.min(lifeProgress, 100)}%` },
-                    ]}
-                  />
-                </View>
-                <Text style={styles.progressText}>
-                  {lifeProgress.toFixed(1)}%
-                </Text>
-              </View>
+              <ProgressBar percentageCompleted={lifeProgress.toFixed(0)} />
             </View>
 
             <View style={styles.divider} />
@@ -88,7 +67,7 @@ export default function ResultScreen() {
                   Current Age
                 </Text>
                 <Text variant="subtitle" style={styles.statValue}>
-                  {currentAge}
+                  {age}
                 </Text>
                 <Text style={styles.statUnit}>years</Text>
               </View>

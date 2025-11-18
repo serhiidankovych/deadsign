@@ -1,6 +1,5 @@
-// LifeTableSkeleton.tsx
 import { Colors } from "@/src/constants/colors";
-import { LinearGradient } from "expo-linear-gradient"; // Or 'react-native-linear-gradient'
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Animated, {
@@ -14,7 +13,6 @@ import { SQUARE_SIZE, SQUARE_SPACING } from "../constants";
 
 const { width: screenWidth } = Dimensions.get("window");
 
-// A simple, reusable component for a single row of skeleton squares
 const SkeletonRow: React.FC = () => (
   <View style={styles.row}>
     {/* Simplified rendering of 12 squares per row */}
@@ -29,18 +27,17 @@ interface LifeTableSkeletonProps {
 }
 
 export const LifeTableSkeleton: React.FC<LifeTableSkeletonProps> = ({
-  totalRows = 90, // Default to a high number for a good initial look
+  totalRows = 90,
 }) => {
   const translateX = useSharedValue(-screenWidth);
 
   useEffect(() => {
-    // This animation creates the shimmer effect by moving the gradient
     translateX.value = withRepeat(
       withTiming(screenWidth, {
         duration: 1200,
         easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       }),
-      -1, // Loop indefinitely
+      -1,
       false
     );
   }, [translateX]);
@@ -75,22 +72,22 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     alignItems: "center",
     paddingVertical: 20,
-    overflow: "hidden", // This is crucial to "mask" the shimmer
+    overflow: "hidden",
   },
   row: {
     flexDirection: "row",
     marginBottom: SQUARE_SPACING * 2,
-    // Use a slightly lighter background for the row to contain the squares
+
     backgroundColor: Colors.surface,
     borderRadius: 4,
-    height: SQUARE_SIZE, // Set a fixed height
+    height: SQUARE_SIZE,
     alignItems: "center",
     paddingHorizontal: SQUARE_SPACING,
   },
   square: {
-    width: SQUARE_SIZE * 2, // Make squares a bit wider for a better look
-    height: SQUARE_SIZE * 0.7, // And slightly shorter
-    backgroundColor: Colors.surfaceSecondary, // This is the placeholder color
+    width: SQUARE_SIZE * 2,
+    height: SQUARE_SIZE * 0.7,
+    backgroundColor: Colors.surfaceSecondary,
     borderRadius: 3,
     marginHorizontal: SQUARE_SPACING / 2,
   },

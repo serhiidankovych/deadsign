@@ -40,13 +40,8 @@ export const LifeTable: React.FC<LifeTableProps> = ({ user }) => {
   } = useLifeTableCache(user, tableData, viewShotRef as RefObject<ViewShot>);
 
   useEffect(() => {
-    if (cachedImageUri && scrollViewRef.current) {
-      const targetY = tableData.currentWeekRow * tableData.rowHeight;
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({ y: targetY, animated: true });
-      }, 300);
-    }
-  }, [cachedImageUri, tableData.currentWeekRow, tableData.rowHeight]);
+    invalidateCacheAndRecapture();
+  }, [user]);
 
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
@@ -75,10 +70,6 @@ export const LifeTable: React.FC<LifeTableProps> = ({ user }) => {
   }));
 
   const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
-
-  // if (isCacheLoading) {
-  //   return <Loading text="Loading table..." />;
-  // }
 
   if (isCacheLoading) {
     return <LifeTableSkeleton totalRows={tableData.totalRows} />;

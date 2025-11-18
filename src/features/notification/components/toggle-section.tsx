@@ -34,7 +34,7 @@ export function ToggleSection({
           false: Colors.border,
           true: Colors.accentPrimary,
         }}
-        thumbColor={value ? Colors.accentPrimary : Colors.accentPrimary}
+        thumbColor={value ? Colors.textPrimary : Colors.textPrimary}
       />
     </View>
   );
