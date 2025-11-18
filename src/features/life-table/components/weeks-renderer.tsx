@@ -43,7 +43,7 @@ export const WeeksRenderer: React.FC<WeeksRendererProps> = ({ user }) => {
         color = Colors.lifeCurrent;
         width = SQUARE_SIZE * currentWeekProgress;
       } else if (isLived) {
-        color = Colors.error;
+        color = Colors.lifePast;
       }
 
       weeks.push(
