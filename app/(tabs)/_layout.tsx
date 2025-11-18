@@ -25,7 +25,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: "Life Table",
+            title: "",
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? "grid" : "grid-outline"}
@@ -38,7 +38,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            title: "Profile",
+            title: "",
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? "person" : "person-outline"}

@@ -16,13 +16,14 @@ export default function FinalScreen() {
 
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
-  const handleFinish = () => {
-    setUser({
+  const handleFinish = async () => {
+    await setUser({
       name: onboardingData.name!,
       dateOfBirth: onboardingData.dateOfBirth!,
       country: onboardingData.country!,
       lifeExpectancy: onboardingData.lifeExpectancy!,
     });
+
     clearOnboardingData();
     router.replace("/(tabs)");
   };

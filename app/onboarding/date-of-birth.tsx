@@ -1,4 +1,5 @@
 import { Colors } from "@/src/constants/colors";
+import { calculateAge } from "@/src/utils/user-stats";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { RelativePathString, router } from "expo-router";
 import React, { useState } from "react";
@@ -21,22 +22,6 @@ export default function DateOfBirthScreen() {
       dateOfBirth,
     });
     router.push("/onboarding/life-expectancy" as RelativePathString);
-  };
-
-  const calculateAge = () => {
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-
-    return age;
   };
 
   return (
@@ -69,7 +54,7 @@ export default function DateOfBirthScreen() {
             {dateOfBirth && (
               <View style={styles.ageDisplay}>
                 <Text style={styles.ageText}>
-                  You are {calculateAge()} years old
+                  You are {calculateAge(dateOfBirth)} years old
                 </Text>
               </View>
             )}

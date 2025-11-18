@@ -1,20 +1,21 @@
+import { ProgressBar } from "@/src/components/ui/progress-bar";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { LifeTable } from "@/src/features/life-table/components/life-table";
 import { useUserStore } from "@/src/store/user-store";
-import { MaterialIcons } from "@expo/vector-icons";
+import { calculateLifePercentage } from "@/src/utils/user-stats";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { DimensionValue, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const { user } = useUserStore();
   if (!user) return null;
 
-  const percentageLived = (
-    (user.weeksLived / (user.lifeExpectancy * 52)) *
-    100
+  const percentageLived = calculateLifePercentage(
+    user.weeksLived,
+    user.totalWeeks
   ).toFixed(0);
 
   return (
@@ -34,64 +35,7 @@ export default function HomeScreen() {
             Your life in weeks
           </Text>
 
-          <View style={styles.progressRow}>
-            <View style={styles.progressBarBackground}>
-              <LinearGradient
-                colors={[
-                  Colors.progressBarStart,
-                  Colors.progressBarMiddle,
-                  Colors.progressBarEnd,
-                ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={[
-                  styles.progressBarFill,
-                  { width: `${percentageLived}%` as DimensionValue },
-                ]}
-              />
-            </View>
-            <Text variant="caption" style={styles.progressText}>
-              {percentageLived}%
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text variant="caption" style={styles.statLabel}>
-              Age
-            </Text>
-            <Text variant="subtitle" style={styles.statValue}>
-              {user.currentAge} yrs
-            </Text>
-          </View>
-
-          <MaterialIcons
-            name="arrow-forward-ios"
-            size={18}
-            color={Colors.textSecondary}
-            style={styles.arrowIcon}
-          />
-
-          <View style={styles.statItem}>
-            <Text variant="caption" style={styles.statLabel}>
-              Expectancy
-            </Text>
-            <Text variant="subtitle" style={styles.statValue}>
-              {user.lifeExpectancy} yrs
-            </Text>
-          </View>
-
-          <View style={styles.statDivider} />
-
-          <View style={styles.statItem}>
-            <Text variant="caption" style={styles.statLabel}>
-              Lived
-            </Text>
-            <Text variant="subtitle" style={styles.statValue}>
-              {user.weeksLived} wks
-            </Text>
-          </View>
+          <ProgressBar percentageCompleted={percentageLived} />
         </View>
       </LinearGradient>
 
@@ -130,28 +74,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     textAlign: "left",
-  },
-  progressRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  progressBarBackground: {
-    flex: 1,
-    height: 6,
-    backgroundColor: Colors.surfaceSecondary,
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  progressBarFill: {
-    height: "100%",
-    borderRadius: 8,
-  },
-  progressText: {
-    color: Colors.textSecondary,
-    fontWeight: "600",
-    fontSize: 12,
-    minWidth: 30,
   },
   statsRow: {
     backgroundColor: Colors.surface,

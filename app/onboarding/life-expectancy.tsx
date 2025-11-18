@@ -1,4 +1,5 @@
 import { Colors } from "@/src/constants/colors";
+import { calculateLifeExpectancy } from "@/src/utils/life-expactancy";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { RelativePathString, router } from "expo-router";
 import React, { useState } from "react";
@@ -7,8 +8,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../../src/components/ui/button";
 import { Card } from "../../src/components/ui/card";
 import { Text } from "../../src/components/ui/text";
+import { countries } from "../../src/data/countries";
 import { useOnboardingStore } from "../../src/features/onboarding/store/onboarding-store";
-import { calculateLifeExpectancy } from "../../src/utils/life-expactancy";
 
 export default function LifeExpectancyScreen() {
   const { onboardingData, updateOnboardingData } = useOnboardingStore();
@@ -22,14 +23,6 @@ export default function LifeExpectancyScreen() {
     return defaultDate;
   });
   const [showManualDatePicker, setShowManualDatePicker] = useState(false);
-
-  const countries = [
-    { name: "Ukraine", flag: "🇺🇦", lifeExpectancy: 72 },
-    { name: "United States", flag: "🇺🇸", lifeExpectancy: 79 },
-    { name: "Germany", flag: "🇩🇪", lifeExpectancy: 81 },
-    { name: "Japan", flag: "🇯🇵", lifeExpectancy: 85 },
-    { name: "United Kingdom", flag: "🇬🇧", lifeExpectancy: 81 },
-  ];
 
   const handleContinue = () => {
     const lifeExpectancy = isManualMode

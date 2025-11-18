@@ -179,9 +179,19 @@ export const useUserStore = () => {
 
   const { state, dispatch } = context;
 
-  const setUser = (
+  const setUser = async (
     userData: Omit<User, "currentAge" | "weeksLived" | "totalWeeks">
   ) => {
+    const CACHE_FILE = new File(Paths.document, "life_table_cache.png");
+    try {
+      if (await CACHE_FILE.exists) {
+        await CACHE_FILE.delete();
+      }
+      await AsyncStorage.removeItem(CACHE_TIMESTAMP_KEY);
+    } catch (error) {
+      console.error("Error clearing LifeTable cache on user update:", error);
+    }
+
     const totalWeeks = userData.lifeExpectancy * 52;
     const user = recalculateLiveUserData({
       ...userData,

@@ -1,5 +1,3 @@
-// useLifeTableCache.ts
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { File, Paths } from "expo-file-system";
 import { RefObject, useEffect, useState } from "react";
@@ -10,13 +8,12 @@ import { isNewDay } from "../utils/date-utils";
 const CACHE_FILE = new File(Paths.document, "life_table_cache.png");
 const CACHE_TIMESTAMP_KEY = "life_table_cache_timestamp";
 
-// MODIFIED: Add the new function to the return type
 interface UseLifeTableCacheReturn {
   cachedImageUri: string | null;
   isCacheLoading: boolean;
   isReadyToCapture: boolean;
   captureAndSaveImage: () => Promise<void>;
-  invalidateCacheAndRecapture: () => Promise<void>; // ADDED
+  invalidateCacheAndRecapture: () => Promise<void>;
 }
 
 export const useLifeTableCache = (
@@ -50,7 +47,7 @@ export const useLifeTableCache = (
       }
     };
     loadImageOrPrepareCapture();
-  }, [user]);
+  }, [user.totalWeeks, user.weeksLived]);
 
   const captureAndSaveImage = async () => {
     if (viewShotRef.current?.capture) {
@@ -83,7 +80,6 @@ export const useLifeTableCache = (
     }
   }, [isReadyToCapture]);
 
-  // ADDED: Function to manually invalidate the cache and trigger a re-capture
   const invalidateCacheAndRecapture = async () => {
     console.log("Forcing cache invalidation and recapture...");
     try {
@@ -91,10 +87,6 @@ export const useLifeTableCache = (
         await CACHE_FILE.delete();
       }
       await AsyncStorage.removeItem(CACHE_TIMESTAMP_KEY);
-
-      // Reset state to trigger the capture flow
-      // This will cause the LifeTable component to unmount the image
-      // and mount the ViewShot component for capturing.
       setCachedImageUri(null);
       setIsReadyToCapture(true);
     } catch (error) {
@@ -107,6 +99,6 @@ export const useLifeTableCache = (
     isCacheLoading,
     isReadyToCapture,
     captureAndSaveImage,
-    invalidateCacheAndRecapture, // ADDED: Return the new function
+    invalidateCacheAndRecapture,
   };
 };
