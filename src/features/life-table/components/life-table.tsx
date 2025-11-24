@@ -107,6 +107,8 @@ export const LifeTable: React.FC<LifeTableProps> = ({ user }) => {
             ref={scrollViewRef}
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContentContainer}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
           >
             <GestureDetector gesture={composedGesture}>
               <Animated.View style={animatedStyle}>

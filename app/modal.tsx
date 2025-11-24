@@ -66,6 +66,12 @@ export default function ModalScreen() {
         (1000 * 60 * 60 * 24 * 365.25)
     );
 
+  const calculateCurrentAge = (dob: Date) => {
+    return Math.floor(
+      (new Date().getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+    );
+  };
+
   const toggleManualMode = () => {
     setIsManualMode(!isManualMode);
     if (!isManualMode) {
@@ -87,7 +93,11 @@ export default function ModalScreen() {
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+      >
         <Card style={styles.section}>
           <Text variant="body" style={styles.sectionLabel}>
             Name
@@ -114,6 +124,12 @@ export default function ModalScreen() {
             </Text>
             <Ionicons name="calendar" size={20} color={Colors.textMuted} />
           </Pressable>
+          {/* ADDED: Display current age which updates dynamically */}
+          <View style={styles.ageDisplay}>
+            <Text style={styles.ageText}>
+              Current age: {calculateCurrentAge(dateOfBirth)} years
+            </Text>
+          </View>
         </Card>
 
         <Card style={styles.section}>
@@ -213,6 +229,22 @@ export default function ModalScreen() {
           )}
         </Card>
 
+        {/* ADDED: Date of birth picker functionality */}
+        {showDatePicker && (
+          <DateTimePicker
+            value={dateOfBirth}
+            mode="date"
+            display="default"
+            maximumDate={new Date()}
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+              if (selectedDate) {
+                setDateOfBirth(selectedDate);
+              }
+            }}
+          />
+        )}
+
         {showManualDatePicker && (
           <DateTimePicker
             value={manualDeathDate}
@@ -291,6 +323,19 @@ const styles = StyleSheet.create({
   dateText: {
     color: Colors.textPrimary,
     fontSize: 16,
+  },
+
+  ageDisplay: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: Colors.surfaceSecondary,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  ageText: {
+    color: Colors.accentPrimary,
+    fontSize: 16,
+    fontWeight: "600",
   },
   modeToggle: {
     flexDirection: "row",

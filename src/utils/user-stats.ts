@@ -5,11 +5,10 @@ export function calculateLifeExpectancy(
   countryName: string
 ): number {
   const country = countries.find((c) => c.name === countryName);
-  // Return the country's life expectancy, or a default value (e.g., 75) if not found.
+
   return country?.lifeExpectancy ?? 75;
 }
 
-// ... (The rest of your utility functions like calculateAge, getUserLifeStats, etc. remain the same)
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const DAYS_PER_YEAR = 365.25;
 const WEEKS_PER_YEAR = 52;

@@ -12,19 +12,7 @@ interface WeeksRendererProps {
 export const WeeksRenderer: React.FC<WeeksRendererProps> = ({ user }) => {
   const currentWeekProgress = useCurrentWeekProgress();
 
-  console.log("WeeksRenderer render:", {
-    weeksLived: user.weeksLived,
-    totalWeeks: user.totalWeeks,
-    currentWeekProgress,
-  });
-
   const renderWeeks = useMemo(() => {
-    console.log("Recalculating weeks array:", {
-      weeksLived: user.weeksLived,
-      totalWeeks: user.totalWeeks,
-      currentWeekProgress,
-    });
-
     const weeks = [];
 
     for (let weekIndex = 0; weekIndex < user.totalWeeks; weekIndex++) {

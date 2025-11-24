@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const { user } = useUserStore();
+
   if (!user) return null;
 
   const percentageLived = calculateLifePercentage(
@@ -19,30 +20,30 @@ export default function HomeScreen() {
   ).toFixed(0);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={[Colors.surfaceSecondary, Colors.background]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.headerGradient}
-      >
-        <View style={styles.header}>
-          <Text variant="title" style={styles.greeting}>
-            Hello, {user.name}
-          </Text>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+        <LinearGradient
+          colors={[Colors.surfaceSecondary, Colors.background]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={styles.headerGradient}
+        >
+          <View style={styles.header}>
+            <Text variant="title" style={styles.greeting}>
+              Hello, {user.name}
+            </Text>
+            <Text variant="subtitle" style={styles.subtitle}>
+              Your life in weeks
+            </Text>
+            <ProgressBar percentageCompleted={percentageLived} />
+          </View>
+        </LinearGradient>
 
-          <Text variant="subtitle" style={styles.subtitle}>
-            Your life in weeks
-          </Text>
-
-          <ProgressBar percentageCompleted={percentageLived} />
+        <View style={styles.lifeTableContainer}>
+          <LifeTable user={user} />
         </View>
-      </LinearGradient>
-
-      <View style={styles.lifeTableContainer}>
-        <LifeTable user={user} />
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -50,6 +51,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  safeArea: {
+    flex: 1,
   },
   headerGradient: {
     paddingHorizontal: 20,
@@ -74,45 +78,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     textAlign: "left",
-  },
-  statsRow: {
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  statItem: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  statLabel: {
-    color: Colors.textMuted,
-    fontSize: 11,
-    marginBottom: 2,
-    textAlign: "center",
-  },
-  statValue: {
-    color: Colors.textPrimary,
-    fontWeight: "600",
-    fontSize: 14,
-    textAlign: "center",
-  },
-  arrowIcon: {
-    marginHorizontal: 8,
-  },
-  statDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: Colors.surfaceSecondary,
-    marginHorizontal: 8,
   },
   lifeTableContainer: {
     flex: 1,
