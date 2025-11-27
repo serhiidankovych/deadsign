@@ -40,4 +40,10 @@ It ensures efficient performance by reusing cached data when possible and recalc
 
 <img width="746" height="745" alt="XPDHZXCn38RVSufV-y83WWDKAbh4Qdaf86sN0vYCsub8aoX9jvet3i49EGcEXo7ig6XVHaxzsVxpnxqjbN8zdxofhdh6pXqOZ_HDmlSfOHUFpkBUnuinP6lC-5eucoGrphf4eUAcSPyeq97p3QZCyHhQHKiUU-aWkOOjyGgJyVFqZnmuap0DxYTZjblLW2-9Gr6HswtHNzwyMsPZe-cMDI5MHdR7iI8U_efx71aajNhz0We3xCZsUu4xm9" src="https://github.com/user-attachments/assets/bbc5ca08-f93f-4aef-bea7-1a2a77a9bc32" />
 
+| Purpose            | Command                                      | Output | Size            |
+|--------------------|----------------------------------------------|--------|-----------------|
+| Coding / Debugging | `eas build -p android --profile development` | APK    | Huge            |
+| Testing / Sharing  | `eas build -p android --profile preview`     | APK    | Small           |
+| Store Upload       | `eas build -p android --profile production`  | AAB    | Smallest        |
+
 
