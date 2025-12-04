@@ -42,8 +42,8 @@ export default function ProfileScreen() {
         {
           text: "Reset",
           style: "destructive",
-          onPress: () => {
-            clearUser();
+          onPress: async () => {
+            await clearUser();
             router.replace("/onboarding" as RelativePathString);
           },
         },
@@ -60,7 +60,7 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView edges={["top"]} style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -75,7 +75,6 @@ export default function ProfileScreen() {
               key={item.label}
               style={[
                 styles.infoRow,
-
                 index === userInfoItems.length - 1 && { borderBottomWidth: 0 },
               ]}
             >
