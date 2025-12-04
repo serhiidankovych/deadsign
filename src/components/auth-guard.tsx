@@ -1,7 +1,7 @@
 import { Loading } from "@/src/components/ui/loading";
 import { Colors } from "@/src/constants/colors";
 import { useUserStore } from "@/src/store/user-store";
-import { Redirect } from "expo-router";
+
 import React from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,7 +23,11 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   }
 
   if (requireAuth && !isOnboarded) {
-    return <Redirect href="/onboarding" />;
+    return (
+      <SafeAreaView style={styles.container}>
+        <Loading />
+      </SafeAreaView>
+    );
   }
 
   return <>{children}</>;

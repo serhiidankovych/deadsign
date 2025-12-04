@@ -2,20 +2,29 @@ import { LinearGradient } from "expo-linear-gradient";
 import { RelativePathString, router } from "expo-router";
 import React from "react";
 import { Image, ImageBackground, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Colors } from "@/src/constants/colors";
 import { Button } from "../../src/components/ui/button";
 import { Text } from "../../src/components/ui/text";
 
 export default function IntroScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
     <ImageBackground
       source={require("../../assets/images/intro-background.png")}
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          {
+            paddingTop: insets.top,
+          },
+        ]}
+      >
         <View style={styles.content}>
           <View style={styles.header}>
             <Image
@@ -40,7 +49,15 @@ export default function IntroScreen() {
             colors={["transparent", "rgba(14, 13, 13, 0.8)", Colors.background]}
             style={styles.gradient}
           />
-          <View style={styles.buttonContainer}>
+
+          <View
+            style={[
+              styles.buttonContainer,
+              {
+                paddingBottom: insets.bottom + 20,
+              },
+            ]}
+          >
             <Button
               onPress={() =>
                 router.push("/onboarding/date-of-birth" as RelativePathString)
@@ -50,7 +67,7 @@ export default function IntroScreen() {
             </Button>
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     </ImageBackground>
   );
 }
@@ -73,6 +90,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     paddingBottom: 20,
+    marginTop: 20,
   },
   logo: {
     width: 270,
@@ -113,7 +131,15 @@ const styles = StyleSheet.create({
     height: 250,
   },
   buttonContainer: {
-    padding: 20,
-    paddingBottom: 30,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.background,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+    borderTopWidth: 1,
+    borderTopColor: Colors.surfaceSecondary,
   },
 });

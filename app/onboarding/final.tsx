@@ -2,7 +2,7 @@ import { Colors } from "@/src/constants/colors";
 import { router } from "expo-router";
 import React from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "../../src/components/ui/button";
 import { Text } from "../../src/components/ui/text";
 
@@ -13,19 +13,28 @@ import { quotes } from "../../src/data/quotes";
 export default function FinalScreen() {
   const { onboardingData, clearOnboardingData } = useOnboardingStore();
   const { setUser } = useUserStore();
+  const insets = useSafeAreaInsets();
 
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
   const handleFinish = async () => {
-    await setUser({
-      name: onboardingData.name!,
-      dateOfBirth: onboardingData.dateOfBirth!,
-      country: onboardingData.country!,
-      lifeExpectancy: onboardingData.lifeExpectancy!,
-    });
+    try {
+      await setUser({
+        name: onboardingData.name!,
+        dateOfBirth: onboardingData.dateOfBirth!,
+        country: onboardingData.country!,
+        lifeExpectancy: onboardingData.lifeExpectancy!,
+      });
 
-    clearOnboardingData();
-    router.replace("/(tabs)");
+      await clearOnboardingData();
+      if (router.canGoBack()) {
+        router.dismissAll();
+      }
+
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.error("Error finishing onboarding:", error);
+    }
   };
 
   return (
@@ -34,7 +43,7 @@ export default function FinalScreen() {
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.content}>
           <View style={styles.header}>
             <Text variant="title" style={styles.greeting}>
@@ -50,12 +59,17 @@ export default function FinalScreen() {
               </Text>
             </View>
           </View>
-
-          <Button onPress={handleFinish} style={styles.continueButton}>
-            Continue to App
-          </Button>
         </View>
-      </SafeAreaView>
+
+        <View
+          style={[
+            styles.buttonContainer,
+            { paddingBottom: insets.bottom + 20 },
+          ]}
+        >
+          <Button onPress={handleFinish}>Continue to App</Button>
+        </View>
+      </View>
     </ImageBackground>
   );
 }
@@ -70,8 +84,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: "space-between",
     padding: 20,
+    paddingBottom: 120,
   },
   header: {
     paddingTop: 40,
@@ -98,7 +112,15 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     textAlign: "center",
   },
-  continueButton: {
-    marginBottom: 20,
+  buttonContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.background,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: Colors.surfaceSecondary,
   },
 });

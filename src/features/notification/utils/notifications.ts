@@ -3,6 +3,21 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
+export type NotificationContentType = "stats" | "motivation" | "both";
+
+export interface UserStats {
+  weeksLived: number;
+  totalWeeks: number;
+  currentAge: number;
+  percentageComplete?: number;
+}
+
+export interface NotificationDataPayload extends Record<string, unknown> {
+  type?: string;
+  notificationType?: NotificationContentType;
+  stats?: UserStats;
+}
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldPlaySound: true,
@@ -12,10 +27,99 @@ Notifications.setNotificationHandler({
   }),
 });
 
+const MOTIVATIONAL_QUOTES: string[] = [
+  "Every week is a new opportunity to create the life you want.",
+  "Time is precious. Make each week count.",
+  "Your life is happening now. Don't wait for tomorrow.",
+  "Each passing week is a reminder to live with purpose.",
+  "Make your weeks matter. They're the building blocks of your legacy.",
+  "Don't count the weeks, make the weeks count.",
+  "Life is a collection of moments. Make them meaningful.",
+  "The time you have is limited. Use it wisely.",
+  "Every week lived is a gift. Make it count.",
+  "Your future self will thank you for the choices you make today.",
+  "Time flies, but you're the pilot.",
+  "Life isn't about finding yourself, it's about creating yourself.",
+  "The best time to start was yesterday. The next best time is now.",
+  "Your life is your message to the world. Make it inspiring.",
+  "Don't let the weeks pass by. Fill them with purpose.",
+];
+
+export function getRandomQuote(): string {
+  return MOTIVATIONAL_QUOTES[
+    Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)
+  ];
+}
+
+export function generateNotificationContent(
+  type: NotificationContentType,
+  stats?: UserStats,
+  includeWeeksLived: boolean = true,
+  includeTotalWeeks: boolean = true,
+  includeAgeProgress: boolean = true
+): { title: string; body: string } {
+  const quote = getRandomQuote();
+
+  if (type === "motivation") {
+    return {
+      title: "💪 Daily Motivation",
+      body: quote,
+    };
+  }
+
+  if (type === "stats" && stats) {
+    const statsLines: string[] = [];
+
+    if (includeWeeksLived) {
+      statsLines.push(`📊 Weeks lived: ${stats.weeksLived.toLocaleString()}`);
+    }
+
+    if (includeTotalWeeks) {
+      const weeksRemaining = stats.totalWeeks - stats.weeksLived;
+      statsLines.push(`⏳ Weeks remaining: ${weeksRemaining.toLocaleString()}`);
+    }
+
+    if (includeAgeProgress && stats.percentageComplete !== undefined) {
+      statsLines.push(
+        `📈 Life progress: ${stats.percentageComplete.toFixed(1)}%`
+      );
+    }
+
+    return {
+      title: `🎯 Your Life Stats (Age ${stats.currentAge})`,
+      body: statsLines.join("\n"),
+    };
+  }
+
+  if (type === "both" && stats) {
+    const statsLines: string[] = [];
+
+    if (includeWeeksLived) {
+      statsLines.push(`Weeks lived: ${stats.weeksLived.toLocaleString()}`);
+    }
+
+    if (includeAgeProgress && stats.percentageComplete !== undefined) {
+      statsLines.push(`Progress: ${stats.percentageComplete.toFixed(1)}%`);
+    }
+
+    const statsText = statsLines.join(" • ");
+
+    return {
+      title: "💪 Daily Reminder",
+      body: `${statsText}\n\n${quote}`,
+    };
+  }
+
+  return {
+    title: "💪 Daily Reminder",
+    body: "Time for your daily motivation! Keep pushing forward.",
+  };
+}
+
 export async function registerForPushNotificationsAsync(): Promise<
   string | undefined
 > {
-  let token;
+  let token: string | undefined;
 
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("daily-reminders", {
@@ -59,7 +163,7 @@ export async function registerForPushNotificationsAsync(): Promise<
       ).data;
 
       console.log("📱 Expo Push Token:", token);
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("Error getting push token:", e);
     }
   } else {
@@ -72,13 +176,13 @@ export async function registerForPushNotificationsAsync(): Promise<
 export async function sendLocalNotification(
   title: string,
   body: string,
-  data?: Record<string, any>
+  data: Record<string, unknown> = {}
 ): Promise<string> {
   return await Notifications.scheduleNotificationAsync({
     content: {
       title,
       body,
-      data: data || {},
+      data,
       sound: "default",
     },
     trigger: null,
@@ -87,21 +191,39 @@ export async function sendLocalNotification(
 
 export async function scheduleDailyReminder(
   hour: number,
-  minute: number
+  minute: number,
+  notificationType: NotificationContentType = "both",
+  stats?: UserStats,
+  includeWeeksLived: boolean = true,
+  includeTotalWeeks: boolean = true,
+  includeAgeProgress: boolean = true,
+  identifier?: string
 ): Promise<string> {
-  await cancelDailyReminders();
-
   const trigger: Notifications.DailyTriggerInput = {
     type: Notifications.SchedulableTriggerInputTypes.DAILY,
     hour,
     minute,
   };
 
+  const { title, body } = generateNotificationContent(
+    notificationType,
+    stats,
+    includeWeeksLived,
+    includeTotalWeeks,
+    includeAgeProgress
+  );
+
+  const dataPayload: NotificationDataPayload = {
+    type: identifier || "daily_reminder",
+    notificationType,
+    stats,
+  };
+
   const notificationId = await Notifications.scheduleNotificationAsync({
     content: {
-      title: "💪 Daily Reminder",
-      body: "Time for your daily motivation! Keep pushing forward.",
-      data: { type: "daily_reminder" },
+      title,
+      body,
+      data: dataPayload,
       sound: "default",
       ...(Platform.OS === "android" && {
         channelId: "daily-reminders",
@@ -111,7 +233,7 @@ export async function scheduleDailyReminder(
   });
 
   console.log(
-    `✅ Daily reminder scheduled for ${hour}:${minute} - ID: ${notificationId}`
+    `✅ ${notificationType} reminder scheduled for ${hour}:${minute} - ID: ${notificationId}`
   );
   return notificationId;
 }
@@ -120,7 +242,14 @@ export async function cancelDailyReminders(): Promise<void> {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
 
   for (const notification of scheduled) {
-    if (notification.content.data?.type === "daily_reminder") {
+    const data = notification.content.data as NotificationDataPayload | null;
+    const dataType = data?.type;
+
+    if (
+      dataType === "daily_reminder" ||
+      dataType === "stats_reminder" ||
+      dataType === "motivation_reminder"
+    ) {
       await Notifications.cancelScheduledNotificationAsync(
         notification.identifier
       );

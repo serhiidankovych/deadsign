@@ -16,11 +16,13 @@ import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { countries } from "@/src/data/countries";
+import { useLoadingStore } from "@/src/store/loading-store";
 import { useUserStore } from "@/src/store/user-store";
 import { calculateLifeExpectancy } from "@/src/utils/life-expactancy";
 
 export default function ModalScreen() {
   const { user, setUser } = useUserStore();
+  const { setGlobalLoading } = useLoadingStore();
 
   const [name, setName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
@@ -44,6 +46,8 @@ export default function ModalScreen() {
   }, [user]);
 
   const handleSave = async () => {
+    setGlobalLoading(true);
+
     const lifeExpectancy = isManualMode
       ? Math.floor(
           (manualDeathDate.getTime() - dateOfBirth.getTime()) /
@@ -57,6 +61,7 @@ export default function ModalScreen() {
       country,
       lifeExpectancy,
     });
+
     router.back();
   };
 
@@ -65,6 +70,12 @@ export default function ModalScreen() {
       (manualDeathDate.getTime() - dateOfBirth.getTime()) /
         (1000 * 60 * 60 * 24 * 365.25)
     );
+
+  const calculateCurrentAge = (dob: Date) => {
+    return Math.floor(
+      (new Date().getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+    );
+  };
 
   const toggleManualMode = () => {
     setIsManualMode(!isManualMode);
@@ -87,7 +98,11 @@ export default function ModalScreen() {
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+      >
         <Card style={styles.section}>
           <Text variant="body" style={styles.sectionLabel}>
             Name
@@ -114,6 +129,12 @@ export default function ModalScreen() {
             </Text>
             <Ionicons name="calendar" size={20} color={Colors.textMuted} />
           </Pressable>
+
+          <View style={styles.ageDisplay}>
+            <Text style={styles.ageText}>
+              Current age: {calculateCurrentAge(dateOfBirth)} years
+            </Text>
+          </View>
         </Card>
 
         <Card style={styles.section}>
@@ -213,6 +234,21 @@ export default function ModalScreen() {
           )}
         </Card>
 
+        {showDatePicker && (
+          <DateTimePicker
+            value={dateOfBirth}
+            mode="date"
+            display="default"
+            maximumDate={new Date()}
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+              if (selectedDate) {
+                setDateOfBirth(selectedDate);
+              }
+            }}
+          />
+        )}
+
         {showManualDatePicker && (
           <DateTimePicker
             value={manualDeathDate}
@@ -291,6 +327,19 @@ const styles = StyleSheet.create({
   dateText: {
     color: Colors.textPrimary,
     fontSize: 16,
+  },
+
+  ageDisplay: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: Colors.surfaceSecondary,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  ageText: {
+    color: Colors.accentPrimary,
+    fontSize: 16,
+    fontWeight: "600",
   },
   modeToggle: {
     flexDirection: "row",
