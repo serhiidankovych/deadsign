@@ -3,7 +3,6 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
-// 1. Define explicit types for your notification logic
 export type NotificationContentType = "stats" | "motivation" | "both";
 
 export interface UserStats {
@@ -13,7 +12,6 @@ export interface UserStats {
   percentageComplete?: number;
 }
 
-// 2. Define the shape of the data object sent with notifications
 export interface NotificationDataPayload extends Record<string, unknown> {
   type?: string;
   notificationType?: NotificationContentType;
@@ -215,7 +213,6 @@ export async function scheduleDailyReminder(
     includeAgeProgress
   );
 
-  // Construct the data payload with our interface
   const dataPayload: NotificationDataPayload = {
     type: identifier || "daily_reminder",
     notificationType,
@@ -245,7 +242,6 @@ export async function cancelDailyReminders(): Promise<void> {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
 
   for (const notification of scheduled) {
-    // Safely cast the data using the interface
     const data = notification.content.data as NotificationDataPayload | null;
     const dataType = data?.type;
 

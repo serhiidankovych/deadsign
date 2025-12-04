@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Platform,
@@ -19,6 +19,7 @@ import { ToggleSection } from "@/src/features/notification/components/toggle-sec
 import { useNotificationStore } from "@/src/features/notification/store/notification-store";
 import {
   cancelAllNotifications,
+  getScheduledNotifications,
   scheduleDailyReminder,
   UserStats,
 } from "@/src/features/notification/utils/notifications";
@@ -32,13 +33,24 @@ export default function NotificationSettingsScreen() {
     setMotivationReminder,
     setStatsPreferences,
   } = useNotificationStore();
+
   const { user } = useUserStore();
+
+  const userRef = useRef(user);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   const [fadeAnim] = useState(new Animated.Value(settings.enabled ? 1 : 0.5));
   const [showStatsTimePicker, setShowStatsTimePicker] = useState(false);
+
   const [statsTime, setStatsTime] = useState(() => {
     const date = new Date();
-    if (settings.statsReminderTime) {
+    if (
+      settings.statsReminderTime?.hour !== undefined &&
+      settings.statsReminderTime?.minute !== undefined
+    ) {
       date.setHours(settings.statsReminderTime.hour);
       date.setMinutes(settings.statsReminderTime.minute);
     } else {
@@ -47,11 +59,15 @@ export default function NotificationSettingsScreen() {
     }
     return date;
   });
+
   const [showMotivationTimePicker, setShowMotivationTimePicker] =
     useState(false);
   const [motivationTime, setMotivationTime] = useState(() => {
     const date = new Date();
-    if (settings.motivationReminderTime) {
+    if (
+      settings.motivationReminderTime?.hour !== undefined &&
+      settings.motivationReminderTime?.minute !== undefined
+    ) {
       date.setHours(settings.motivationReminderTime.hour);
       date.setMinutes(settings.motivationReminderTime.minute);
     } else {
@@ -62,14 +78,20 @@ export default function NotificationSettingsScreen() {
   });
 
   useEffect(() => {
-    if (settings.statsReminderTime) {
+    if (
+      settings.statsReminderTime?.hour !== undefined &&
+      settings.statsReminderTime?.minute !== undefined
+    ) {
       const statsDate = new Date();
       statsDate.setHours(settings.statsReminderTime.hour);
       statsDate.setMinutes(settings.statsReminderTime.minute);
       setStatsTime(statsDate);
     }
 
-    if (settings.motivationReminderTime) {
+    if (
+      settings.motivationReminderTime?.hour !== undefined &&
+      settings.motivationReminderTime?.minute !== undefined
+    ) {
       const motivationDate = new Date();
       motivationDate.setHours(settings.motivationReminderTime.hour);
       motivationDate.setMinutes(settings.motivationReminderTime.minute);
@@ -86,51 +108,89 @@ export default function NotificationSettingsScreen() {
   }, [settings.enabled]);
 
   const scheduleAllReminders = async () => {
-    await cancelAllNotifications();
+    try {
+      const currentSettings = useNotificationStore.getState().settings;
+      const currentUser = userRef.current;
 
-    if (
-      !settings.enabled ||
-      !settings.statsReminderTime ||
-      !settings.motivationReminderTime
-    ) {
-      return;
-    }
+      console.log("🔄 Scheduling reminders with FRESH settings:", {
+        enabled: currentSettings.enabled,
+        statsTime: currentSettings.statsReminderTime,
+        motivationTime: currentSettings.motivationReminderTime,
+        hasUser: !!currentUser,
+      });
 
-    let stats: UserStats | undefined;
-    if (user) {
-      const percentageComplete = (user.weeksLived / user.totalWeeks) * 100;
-      stats = {
-        weeksLived: user.weeksLived,
-        totalWeeks: user.totalWeeks,
-        currentAge: user.currentAge,
-        percentageComplete,
-      };
-    }
+      await cancelAllNotifications();
 
-    if (settings.statsReminderEnabled && stats) {
-      await scheduleDailyReminder(
-        settings.statsReminderTime.hour,
-        settings.statsReminderTime.minute,
-        "stats",
-        stats,
-        settings.includeWeeksLived,
-        false,
-        settings.includeAgeProgress,
-        "stats_reminder"
-      );
-    }
+      if (!currentSettings.enabled) {
+        console.log("⚠️ Notifications disabled, skipping scheduling");
+        return;
+      }
 
-    if (settings.motivationReminderEnabled) {
-      await scheduleDailyReminder(
-        settings.motivationReminderTime.hour,
-        settings.motivationReminderTime.minute,
-        "motivation",
-        undefined,
-        false,
-        false,
-        false,
-        "motivation_reminder"
-      );
+      let stats: UserStats | undefined;
+
+      if (currentUser) {
+        const percentageComplete =
+          (currentUser.weeksLived / currentUser.totalWeeks) * 100;
+        stats = {
+          weeksLived: currentUser.weeksLived,
+          totalWeeks: currentUser.totalWeeks,
+          currentAge: currentUser.currentAge,
+          percentageComplete,
+        };
+      }
+
+      if (
+        currentSettings.statsReminderEnabled &&
+        currentSettings.statsReminderTime?.hour !== undefined &&
+        currentSettings.statsReminderTime?.minute !== undefined &&
+        stats
+      ) {
+        const id = await scheduleDailyReminder(
+          currentSettings.statsReminderTime.hour,
+          currentSettings.statsReminderTime.minute,
+          "stats",
+          stats,
+          currentSettings.includeWeeksLived,
+          false,
+          currentSettings.includeAgeProgress,
+          "stats_reminder"
+        );
+        console.log(
+          `✅ Stats reminder scheduled at ${currentSettings.statsReminderTime.hour}:${currentSettings.statsReminderTime.minute} - ID: ${id}`
+        );
+      }
+
+      if (
+        currentSettings.motivationReminderEnabled &&
+        currentSettings.motivationReminderTime?.hour !== undefined &&
+        currentSettings.motivationReminderTime?.minute !== undefined
+      ) {
+        const id = await scheduleDailyReminder(
+          currentSettings.motivationReminderTime.hour,
+          currentSettings.motivationReminderTime.minute,
+          "motivation",
+          undefined,
+          false,
+          false,
+          false,
+          "motivation_reminder"
+        );
+        console.log(
+          `✅ Motivation reminder scheduled at ${currentSettings.motivationReminderTime.hour}:${currentSettings.motivationReminderTime.minute} - ID: ${id}`
+        );
+      }
+
+      const scheduled = await getScheduledNotifications();
+      console.log(`📋 Total scheduled notifications: ${scheduled.length}`);
+      scheduled.forEach((notif) => {
+        console.log(
+          `  - ${notif.identifier}: ${notif.content.title} at ${JSON.stringify(
+            notif.trigger
+          )}`
+        );
+      });
+    } catch (error) {
+      console.error("❌ Error in scheduleAllReminders:", error);
     }
   };
 
@@ -139,43 +199,66 @@ export default function NotificationSettingsScreen() {
     if (!value) {
       await cancelAllNotifications();
     } else {
-      await scheduleAllReminders();
+      setTimeout(() => {
+        scheduleAllReminders();
+      }, 100);
     }
   };
 
   const handleToggleStatsReminder = async (value: boolean) => {
     setStatsReminder(value);
-    await scheduleAllReminders();
+    setTimeout(() => {
+      scheduleAllReminders();
+    }, 100);
   };
 
   const handleToggleMotivationReminder = async (value: boolean) => {
     setMotivationReminder(value);
-    await scheduleAllReminders();
+    setTimeout(() => {
+      scheduleAllReminders();
+    }, 100);
   };
 
-  const handleStatsTimeChange = async (selectedDate?: Date) => {
+  const handleStatsTimeChange = async (event: any, selectedDate?: Date) => {
     setShowStatsTimePicker(Platform.OS === "ios");
     if (selectedDate) {
+      console.log(
+        "📅 Stats time changed to:",
+        selectedDate.toLocaleTimeString()
+      );
       setStatsTime(selectedDate);
       setStatsReminder(
         true,
         selectedDate.getHours(),
         selectedDate.getMinutes()
       );
-      await scheduleAllReminders();
+
+      setTimeout(() => {
+        scheduleAllReminders();
+      }, 100);
     }
   };
 
-  const handleMotivationTimeChange = async (selectedDate?: Date) => {
+  const handleMotivationTimeChange = async (
+    event: any,
+    selectedDate?: Date
+  ) => {
     setShowMotivationTimePicker(Platform.OS === "ios");
     if (selectedDate) {
+      console.log(
+        "📅 Motivation time changed to:",
+        selectedDate.toLocaleTimeString()
+      );
       setMotivationTime(selectedDate);
       setMotivationReminder(
         true,
         selectedDate.getHours(),
         selectedDate.getMinutes()
       );
-      await scheduleAllReminders();
+
+      setTimeout(() => {
+        scheduleAllReminders();
+      }, 100);
     }
   };
 
@@ -227,17 +310,23 @@ export default function NotificationSettingsScreen() {
                       label="Weeks Lived"
                       description=""
                       value={settings.includeWeeksLived}
-                      onToggle={(value) =>
-                        setStatsPreferences(value, settings.includeAgeProgress)
-                      }
+                      onToggle={async (value) => {
+                        setStatsPreferences(value, settings.includeAgeProgress);
+                        setTimeout(() => {
+                          scheduleAllReminders();
+                        }, 100);
+                      }}
                     />
                     <ToggleSection
                       label="Life Progress (%)"
                       description=""
                       value={settings.includeAgeProgress}
-                      onToggle={(value) =>
-                        setStatsPreferences(settings.includeWeeksLived, value)
-                      }
+                      onToggle={async (value) => {
+                        setStatsPreferences(settings.includeWeeksLived, value);
+                        setTimeout(() => {
+                          scheduleAllReminders();
+                        }, 100);
+                      }}
                     />
                   </Card>
                 )}
