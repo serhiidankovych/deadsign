@@ -16,11 +16,13 @@ import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { countries } from "@/src/data/countries";
+import { useLoadingStore } from "@/src/store/loading-store";
 import { useUserStore } from "@/src/store/user-store";
 import { calculateLifeExpectancy } from "@/src/utils/life-expactancy";
 
 export default function ModalScreen() {
   const { user, setUser } = useUserStore();
+  const { setGlobalLoading } = useLoadingStore();
 
   const [name, setName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
@@ -44,6 +46,8 @@ export default function ModalScreen() {
   }, [user]);
 
   const handleSave = async () => {
+    setGlobalLoading(true);
+
     const lifeExpectancy = isManualMode
       ? Math.floor(
           (manualDeathDate.getTime() - dateOfBirth.getTime()) /
@@ -57,6 +61,7 @@ export default function ModalScreen() {
       country,
       lifeExpectancy,
     });
+
     router.back();
   };
 
@@ -124,7 +129,7 @@ export default function ModalScreen() {
             </Text>
             <Ionicons name="calendar" size={20} color={Colors.textMuted} />
           </Pressable>
-          {/* ADDED: Display current age which updates dynamically */}
+
           <View style={styles.ageDisplay}>
             <Text style={styles.ageText}>
               Current age: {calculateCurrentAge(dateOfBirth)} years
@@ -229,7 +234,6 @@ export default function ModalScreen() {
           )}
         </Card>
 
-        {/* ADDED: Date of birth picker functionality */}
         {showDatePicker && (
           <DateTimePicker
             value={dateOfBirth}
