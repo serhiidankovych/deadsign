@@ -2,15 +2,34 @@ import { ProgressBar } from "@/src/components/ui/progress-bar";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { LifeTable } from "@/src/features/life-table/components/life-table";
+import { useLoadingStore } from "@/src/store/loading-store";
 import { useUserStore } from "@/src/store/user-store";
 import { calculateLifePercentage } from "@/src/utils/user-stats";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const { user } = useUserStore();
+  const { setGlobalLoading } = useLoadingStore();
+  const hasInitialized = useRef(false);
+
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      setGlobalLoading(true);
+      hasInitialized.current = true;
+    }
+  }, []);
+
+  const handleLoadingChange = useCallback(
+    (isLoading: boolean) => {
+      if (!isLoading) {
+        setGlobalLoading(false);
+      }
+    },
+    [setGlobalLoading]
+  );
 
   if (!user) return null;
 
@@ -38,9 +57,8 @@ export default function HomeScreen() {
             <ProgressBar percentageCompleted={percentageLived} />
           </View>
         </LinearGradient>
-
         <View style={styles.lifeTableContainer}>
-          <LifeTable user={user} />
+          <LifeTable user={user} onLoadingChange={handleLoadingChange} />
         </View>
       </SafeAreaView>
     </View>
