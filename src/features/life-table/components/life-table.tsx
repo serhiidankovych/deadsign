@@ -8,6 +8,7 @@ import {
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 import ViewShot from "react-native-view-shot";
 import { useLifeTableCache } from "../hooks/use-life-table-cache";
@@ -15,15 +16,22 @@ import { useLifeTableData } from "../hooks/use-life-table-data";
 import type { LifeTableProps } from "../types";
 import { CachedImage } from "./cached-image";
 import { LifeTableCanvas } from "./life-table-canvas";
-
-import { LifeTableSkeleton } from "./life-table-skeleton";
 import { styles } from "./life-table.styles";
 
-export const LifeTable: React.FC<LifeTableProps> = ({ user }) => {
+export interface LifeTablePropsWithCallback extends LifeTableProps {
+  onLoadingChange?: (isLoading: boolean) => void;
+}
+
+export const LifeTable: React.FC<LifeTablePropsWithCallback> = ({
+  user,
+  onLoadingChange,
+}) => {
   const viewShotRef = useRef<ViewShot>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const scale = useSharedValue(0.5);
+  const opacity = useSharedValue(0);
+
+  const scale = useSharedValue(0.7);
   const savedScale = useSharedValue(1);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -32,16 +40,24 @@ export const LifeTable: React.FC<LifeTableProps> = ({ user }) => {
 
   const tableData = useLifeTableData(user);
 
-  const {
-    cachedImageUri,
-    isCacheLoading,
-    isReadyToCapture,
-    invalidateCacheAndRecapture,
-  } = useLifeTableCache(user, tableData, viewShotRef as RefObject<ViewShot>);
+  const { cachedImageUri, isReadyToCapture } = useLifeTableCache(
+    user,
+    tableData,
+    viewShotRef as RefObject<ViewShot>
+  );
 
   useEffect(() => {
-    invalidateCacheAndRecapture();
-  }, [user]);
+    const isLoading = !cachedImageUri || isReadyToCapture;
+    onLoadingChange?.(isLoading);
+  }, [cachedImageUri, isReadyToCapture, onLoadingChange]);
+
+  useEffect(() => {
+    if (cachedImageUri && !isReadyToCapture) {
+      opacity.value = withTiming(1, { duration: 150 });
+    } else {
+      opacity.value = 0;
+    }
+  }, [cachedImageUri, isReadyToCapture]);
 
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
@@ -69,40 +85,17 @@ export const LifeTable: React.FC<LifeTableProps> = ({ user }) => {
     ],
   }));
 
+  const fadeInStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
   const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
-
-  if (isCacheLoading) {
-    return <LifeTableSkeleton totalRows={tableData.totalRows} />;
-  }
-
-  if (!cachedImageUri && isReadyToCapture) {
-    return (
-      <GestureHandlerRootView style={styles.container}>
-        <View style={styles.captureContainer}>
-          <ViewShot
-            ref={viewShotRef}
-            options={{
-              format: "png",
-              quality: 1,
-              width: tableData.fullWidth,
-              height: tableData.fullHeight,
-            }}
-            style={{
-              width: tableData.fullWidth,
-              height: tableData.fullHeight,
-            }}
-          >
-            <LifeTableCanvas user={user} tableData={tableData} />
-          </ViewShot>
-        </View>
-      </GestureHandlerRootView>
-    );
-  }
 
   return (
     <GestureHandlerRootView style={styles.container}>
+      {/* Show cached image with fade-in animation */}
       {cachedImageUri && !isReadyToCapture && (
-        <>
+        <Animated.View style={[styles.contentContainer, fadeInStyle]}>
           <ScrollView
             ref={scrollViewRef}
             style={styles.scrollView}
@@ -120,25 +113,17 @@ export const LifeTable: React.FC<LifeTableProps> = ({ user }) => {
               </Animated.View>
             </GestureDetector>
           </ScrollView>
-
-          {/* {__DEV__ && (
-            <View style={styles.refreshButtonContainer}>
-              <Button
-                title="Refresh Canvas"
-                onPress={invalidateCacheAndRecapture}
-              />
-            </View>
-          )} */}
-        </>
+        </Animated.View>
       )}
 
+      {/* Off-screen capture view */}
       {isReadyToCapture && (
         <View style={styles.captureContainer}>
           <ViewShot
             ref={viewShotRef}
             options={{
               format: "png",
-              quality: 1,
+              quality: 0.9,
               width: tableData.fullWidth,
               height: tableData.fullHeight,
             }}

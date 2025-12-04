@@ -46,6 +46,7 @@ export const useLifeTableCache = (
         setIsCacheLoading(false);
       }
     };
+
     loadImageOrPrepareCapture();
   }, [user.totalWeeks, user.weeksLived]);
 
@@ -56,13 +57,13 @@ export const useLifeTableCache = (
         if (!localUri) {
           throw new Error("Capture failed to produce a URI.");
         }
-        const tempFile = new File(localUri);
 
+        const tempFile = new File(localUri);
         if (await CACHE_FILE.exists) {
           await CACHE_FILE.delete();
         }
-
         await tempFile.move(CACHE_FILE);
+
         await AsyncStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
 
         setCachedImageUri(`${CACHE_FILE.uri}?t=${Date.now()}`);
@@ -76,7 +77,9 @@ export const useLifeTableCache = (
 
   useEffect(() => {
     if (isReadyToCapture) {
-      setTimeout(captureAndSaveImage, 500);
+      requestAnimationFrame(() => {
+        captureAndSaveImage();
+      });
     }
   }, [isReadyToCapture]);
 
