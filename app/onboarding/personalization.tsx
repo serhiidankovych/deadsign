@@ -1,82 +1,84 @@
 import { useOnboardingStore } from "@/src/features/onboarding/store/onboarding-store";
 import { LinearGradient } from "expo-linear-gradient";
 import { RelativePathString, router } from "expo-router";
-import { VideoView, useVideoPlayer } from "expo-video";
+
 import React, { useState } from "react";
 import {
+  ImageBackground,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
   TextInput,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Button } from "@/src/components/ui/button";
-import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 
 export default function PersonalizationScreen() {
   const { onboardingData, updateOnboardingData } = useOnboardingStore();
   const [name, setName] = useState(onboardingData.name || "");
-
-  const player = useVideoPlayer(
-    require("../../assets/videos/intro-background-video.mp4"),
-    (player) => {
-      player.loop = true;
-      player.play();
-    }
-  );
+  const insets = useSafeAreaInsets();
 
   const handleContinue = () => {
-    player.pause();
-    updateOnboardingData({ name });
-    router.push("/onboarding/final" as RelativePathString);
+    if (name.trim()) {
+      updateOnboardingData({ name: name.trim() });
+      router.push("/onboarding/final" as RelativePathString);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <VideoView
-        player={player}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-      />
-
-      <SafeAreaView style={styles.safeAreaContainer}>
-        <LinearGradient
-          colors={[
-            "rgba(0, 0, 0, 0.3)",
-            "rgba(0, 0, 0, 0.5)",
-            "rgba(0, 0, 0, 0.7)",
+    <ImageBackground
+      source={require("../../assets/images/intro-background.png")}
+      style={styles.backgroundImage}
+      resizeMode="cover"
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View
+          style={[
+            styles.container,
+            {
+              paddingTop: insets.top,
+            },
           ]}
-          style={StyleSheet.absoluteFill}
-        />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.keyboardAvoidingContainer}
         >
-          <View style={styles.content}>
-            <View style={styles.header}>
-              <View style={styles.headerContent}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+            keyboardVerticalOffset={0}
+          >
+            {/* HEADER CONTENT */}
+            <View style={styles.content}>
+              <View style={styles.header}>
                 <Text variant="title" style={styles.title}>
                   What&apos;s your name?
                 </Text>
+
+                <Text variant="subtitle" style={styles.subtitle}>
+                  We personalize your journey starting from this little spark.
+                </Text>
               </View>
             </View>
-          </View>
-          <View style={styles.footer}>
-            <LinearGradient
-              colors={[
-                "transparent",
-                "rgba(0, 0, 0, 0.4)",
-                "rgba(0, 0, 0, 0.8)",
-                "rgba(0, 0, 0, 0.95)",
-              ]}
-              style={styles.gradient}
-            />
-            <View style={styles.buttonContainer}>
-              <Card style={styles.inputCard}>
+
+            {/* FOOTER WITH INPUT + BUTTON */}
+            <View style={styles.footer}>
+              <LinearGradient
+                colors={["transparent", "rgba(0,0,0,0.7)", Colors.background]}
+                style={styles.gradient}
+              />
+
+              <View
+                style={[
+                  styles.inputButtonContainer,
+                  {
+                    paddingBottom: insets.bottom + 20,
+                  },
+                ]}
+              >
                 <TextInput
                   style={styles.input}
                   value={name}
@@ -86,74 +88,59 @@ export default function PersonalizationScreen() {
                   autoCapitalize="words"
                   autoComplete="name"
                   returnKeyType="done"
+                  onSubmitEditing={handleContinue}
                 />
-              </Card>
 
-              <View style={styles.buttonWrapper}>
-                <LinearGradient
-                  colors={["rgba(0, 0, 0, 0.3)", "rgba(0, 0, 0, 0.1)"]}
-                  style={styles.buttonBackgroundGradient}
-                />
                 <Button onPress={handleContinue} disabled={!name.trim()}>
                   Continue
                 </Button>
               </View>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </View>
+          </KeyboardAvoidingView>
+        </View>
+      </TouchableWithoutFeedback>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  backgroundImage: {
     flex: 1,
+    width: "100%",
+    height: "100%",
   },
-  safeAreaContainer: {
+  container: {
     flex: 1,
     backgroundColor: "transparent",
   },
-  keyboardAvoidingContainer: {
-    flex: 1,
-  },
+
+  /** CONTENT AREA */
   content: {
     flex: 1,
-    padding: 20,
-    paddingBottom: 180,
+    paddingHorizontal: 24,
+    justifyContent: "center",
   },
+
   header: {
     alignItems: "center",
-    paddingTop: 40,
-  },
-  headerContent: {
-    alignItems: "center",
-    paddingVertical: 30,
     paddingHorizontal: 20,
-    borderRadius: 16,
-    overflow: "hidden",
   },
   title: {
     color: Colors.textPrimary,
     fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 16,
     textAlign: "center",
-    textShadowColor: "rgba(0, 0, 0, 0.8)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+    marginBottom: 12,
   },
   subtitle: {
     color: Colors.textSecondary,
     textAlign: "center",
-    fontSize: 14,
-    lineHeight: 26,
-    paddingHorizontal: 20,
-    opacity: 0.95,
-    textShadowColor: "rgba(0, 0, 0, 0.6)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    fontSize: 18,
+    lineHeight: 24,
+    opacity: 0.9,
+    maxWidth: 320,
   },
+
   footer: {
     position: "absolute",
     bottom: 0,
@@ -167,14 +154,17 @@ const styles = StyleSheet.create({
     right: 0,
     height: 280,
   },
-  buttonContainer: {
-    paddingBottom: 30,
+  inputButtonContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.background,
     paddingHorizontal: 20,
-  },
-  inputCard: {
-    backgroundColor: "transparent",
-    borderColor: "transparent",
-    width: "100%",
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: Colors.surfaceSecondary,
+    gap: 12,
   },
   input: {
     backgroundColor: Colors.inputBackground,
@@ -184,19 +174,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: Colors.surfaceSecondary,
-    width: "100%",
-  },
-  buttonWrapper: {
-    position: "relative",
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  buttonBackgroundGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 12,
   },
 });

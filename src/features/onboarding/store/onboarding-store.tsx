@@ -1,4 +1,7 @@
-import React, { createContext, useContext, useReducer } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useContext, useEffect, useReducer } from "react";
+
+const ONBOARDING_STORAGE_KEY = "temp_onboarding_data";
 
 interface OnboardingData {
   dateOfBirth?: Date;
@@ -9,14 +12,18 @@ interface OnboardingData {
 
 interface OnboardingState {
   onboardingData: OnboardingData;
+  isLoading: boolean;
 }
 
 type OnboardingAction =
   | { type: "UPDATE_DATA"; payload: Partial<OnboardingData> }
-  | { type: "CLEAR_DATA" };
+  | { type: "SET_DATA"; payload: OnboardingData }
+  | { type: "CLEAR_DATA" }
+  | { type: "SET_LOADING"; payload: boolean };
 
 const initialState: OnboardingState = {
   onboardingData: {},
+  isLoading: true,
 };
 
 const onboardingReducer = (
@@ -29,8 +36,15 @@ const onboardingReducer = (
         ...state,
         onboardingData: { ...state.onboardingData, ...action.payload },
       };
+    case "SET_DATA":
+      return {
+        ...state,
+        onboardingData: action.payload,
+      };
     case "CLEAR_DATA":
-      return initialState;
+      return { ...initialState, isLoading: false };
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
     default:
       return state;
   }
@@ -45,6 +59,43 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(onboardingReducer, initialState);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(ONBOARDING_STORAGE_KEY);
+        if (stored) {
+          const parsedData = JSON.parse(stored);
+
+          if (parsedData.dateOfBirth) {
+            parsedData.dateOfBirth = new Date(parsedData.dateOfBirth);
+          }
+          dispatch({ type: "SET_DATA", payload: parsedData });
+        }
+      } catch (e) {
+        console.error("Failed to load onboarding data", e);
+      } finally {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    if (!state.isLoading) {
+      const saveData = async () => {
+        try {
+          await AsyncStorage.setItem(
+            ONBOARDING_STORAGE_KEY,
+            JSON.stringify(state.onboardingData)
+          );
+        } catch (e) {
+          console.error("Failed to save onboarding data", e);
+        }
+      };
+      saveData();
+    }
+  }, [state.onboardingData, state.isLoading]);
 
   return (
     <OnboardingContext.Provider value={{ state, dispatch }}>
@@ -67,12 +118,14 @@ export const useOnboardingStore = () => {
     dispatch({ type: "UPDATE_DATA", payload: data });
   };
 
-  const clearOnboardingData = () => {
+  const clearOnboardingData = async () => {
+    await AsyncStorage.removeItem(ONBOARDING_STORAGE_KEY);
     dispatch({ type: "CLEAR_DATA" });
   };
 
   return {
     onboardingData: state.onboardingData,
+    isLoading: state.isLoading,
     updateOnboardingData,
     clearOnboardingData,
   };
