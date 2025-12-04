@@ -19,5 +19,4 @@ export const quotes = [
     text: "Life is what happens to you while you're busy making other plans.",
     author: "John Lennon",
   },
-  // Add more quotes as needed
 ];
