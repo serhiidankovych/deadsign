@@ -1,5 +1,4 @@
 import { Colors } from "@/src/constants/colors";
-import { Ionicons } from "@expo/vector-icons";
 import React, {
   RefObject,
   useCallback,
@@ -7,13 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -195,32 +188,6 @@ export const LifeTable: React.FC<LifeTablePropsWithCallback> = ({
                   </Text>
                 </View>
               )}
-
-              <View style={styles.zoomButtons}>
-                <TouchableOpacity
-                  onPress={() => {
-                    const newScale = Math.max(1, currentScale - 1);
-                    scale.value = withSpring(newScale);
-                    savedScale.value = newScale;
-                    setCurrentScale(newScale);
-                  }}
-                  style={styles.circleBtn}
-                >
-                  <Ionicons name="remove" size={24} color="white" />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => {
-                    const newScale = Math.min(5, currentScale + 1);
-                    scale.value = withSpring(newScale);
-                    savedScale.value = newScale;
-                    setCurrentScale(newScale);
-                  }}
-                  style={styles.circleBtn}
-                >
-                  <Ionicons name="add" size={24} color="white" />
-                </TouchableOpacity>
-              </View>
             </View>
           )}
         </Animated.View>
