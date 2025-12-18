@@ -1,0 +1,1594 @@
+{
+  "metadata": {
+    "dataSource": "World Development Indicators",
+    "lastUpdatedDate": "2025-12-16"
+  },
+  "year": 2023,
+  "records": [
+    {
+      "countryName": "Aruba",
+      "countryCode": "ABW",
+      "year": 2023,
+      "lifeExpectancy": 76.4
+    },
+    {
+      "countryName": "Africa Eastern and Southern",
+      "countryCode": "AFE",
+      "year": 2023,
+      "lifeExpectancy": 65.1
+    },
+    {
+      "countryName": "Afghanistan",
+      "countryCode": "AFG",
+      "year": 2023,
+      "lifeExpectancy": 66.0
+    },
+    {
+      "countryName": "Africa Western and Central",
+      "countryCode": "AFW",
+      "year": 2023,
+      "lifeExpectancy": 58.9
+    },
+    {
+      "countryName": "Angola",
+      "countryCode": "AGO",
+      "year": 2023,
+      "lifeExpectancy": 64.6
+    },
+    {
+      "countryName": "Albania",
+      "countryCode": "ALB",
+      "year": 2023,
+      "lifeExpectancy": 79.6
+    },
+    {
+      "countryName": "Andorra",
+      "countryCode": "AND",
+      "year": 2023,
+      "lifeExpectancy": 84.0
+    },
+    {
+      "countryName": "Arab World",
+      "countryCode": "ARB",
+      "year": 2023,
+      "lifeExpectancy": 72.4
+    },
+    {
+      "countryName": "United Arab Emirates",
+      "countryCode": "ARE",
+      "year": 2023,
+      "lifeExpectancy": 82.9
+    },
+    {
+      "countryName": "Argentina",
+      "countryCode": "ARG",
+      "year": 2023,
+      "lifeExpectancy": 77.4
+    },
+    {
+      "countryName": "Armenia",
+      "countryCode": "ARM",
+      "year": 2023,
+      "lifeExpectancy": 77.5
+    },
+    {
+      "countryName": "American Samoa",
+      "countryCode": "ASM",
+      "year": 2023,
+      "lifeExpectancy": 72.9
+    },
+    {
+      "countryName": "Antigua and Barbuda",
+      "countryCode": "ATG",
+      "year": 2023,
+      "lifeExpectancy": 77.6
+    },
+    {
+      "countryName": "Australia",
+      "countryCode": "AUS",
+      "year": 2023,
+      "lifeExpectancy": 83.1
+    },
+    {
+      "countryName": "Austria",
+      "countryCode": "AUT",
+      "year": 2023,
+      "lifeExpectancy": 81.5
+    },
+    {
+      "countryName": "Azerbaijan",
+      "countryCode": "AZE",
+      "year": 2023,
+      "lifeExpectancy": 74.4
+    },
+    {
+      "countryName": "Burundi",
+      "countryCode": "BDI",
+      "year": 2023,
+      "lifeExpectancy": 63.7
+    },
+    {
+      "countryName": "Belgium",
+      "countryCode": "BEL",
+      "year": 2023,
+      "lifeExpectancy": 82.4
+    },
+    {
+      "countryName": "Benin",
+      "countryCode": "BEN",
+      "year": 2023,
+      "lifeExpectancy": 60.8
+    },
+    {
+      "countryName": "Burkina Faso",
+      "countryCode": "BFA",
+      "year": 2023,
+      "lifeExpectancy": 61.1
+    },
+    {
+      "countryName": "Bangladesh",
+      "countryCode": "BGD",
+      "year": 2023,
+      "lifeExpectancy": 74.7
+    },
+    {
+      "countryName": "Bulgaria",
+      "countryCode": "BGR",
+      "year": 2023,
+      "lifeExpectancy": 75.7
+    },
+    {
+      "countryName": "Bahrain",
+      "countryCode": "BHR",
+      "year": 2023,
+      "lifeExpectancy": 81.3
+    },
+    {
+      "countryName": "Bahamas, The",
+      "countryCode": "BHS",
+      "year": 2023,
+      "lifeExpectancy": 74.6
+    },
+    {
+      "countryName": "Bosnia and Herzegovina",
+      "countryCode": "BIH",
+      "year": 2023,
+      "lifeExpectancy": 77.8
+    },
+    {
+      "countryName": "Belarus",
+      "countryCode": "BLR",
+      "year": 2023,
+      "lifeExpectancy": 74.2
+    },
+    {
+      "countryName": "Belize",
+      "countryCode": "BLZ",
+      "year": 2023,
+      "lifeExpectancy": 73.6
+    },
+    {
+      "countryName": "Bermuda",
+      "countryCode": "BMU",
+      "year": 2023,
+      "lifeExpectancy": 82.3
+    },
+    {
+      "countryName": "Bolivia",
+      "countryCode": "BOL",
+      "year": 2023,
+      "lifeExpectancy": 68.6
+    },
+    {
+      "countryName": "Brazil",
+      "countryCode": "BRA",
+      "year": 2023,
+      "lifeExpectancy": 75.8
+    },
+    {
+      "countryName": "Barbados",
+      "countryCode": "BRB",
+      "year": 2023,
+      "lifeExpectancy": 76.2
+    },
+    {
+      "countryName": "Brunei Darussalam",
+      "countryCode": "BRN",
+      "year": 2023,
+      "lifeExpectancy": 75.3
+    },
+    {
+      "countryName": "Bhutan",
+      "countryCode": "BTN",
+      "year": 2023,
+      "lifeExpectancy": 73.0
+    },
+    {
+      "countryName": "Botswana",
+      "countryCode": "BWA",
+      "year": 2023,
+      "lifeExpectancy": 69.2
+    },
+    {
+      "countryName": "Central African Republic",
+      "countryCode": "CAF",
+      "year": 2023,
+      "lifeExpectancy": 57.4
+    },
+    {
+      "countryName": "Canada",
+      "countryCode": "CAN",
+      "year": 2023,
+      "lifeExpectancy": 81.6
+    },
+    {
+      "countryName": "Central Europe and the Baltics",
+      "countryCode": "CEB",
+      "year": 2023,
+      "lifeExpectancy": 77.9
+    },
+    {
+      "countryName": "Switzerland",
+      "countryCode": "CHE",
+      "year": 2023,
+      "lifeExpectancy": 84.1
+    },
+    {
+      "countryName": "Channel Islands",
+      "countryCode": "CHI",
+      "year": 2023,
+      "lifeExpectancy": 81.1
+    },
+    {
+      "countryName": "Chile",
+      "countryCode": "CHL",
+      "year": 2023,
+      "lifeExpectancy": 81.2
+    },
+    {
+      "countryName": "China",
+      "countryCode": "CHN",
+      "year": 2023,
+      "lifeExpectancy": 78.0
+    },
+    {
+      "countryName": "Cote d'Ivoire",
+      "countryCode": "CIV",
+      "year": 2023,
+      "lifeExpectancy": 61.9
+    },
+    {
+      "countryName": "Cameroon",
+      "countryCode": "CMR",
+      "year": 2023,
+      "lifeExpectancy": 63.7
+    },
+    {
+      "countryName": "Congo, Dem. Rep.",
+      "countryCode": "COD",
+      "year": 2023,
+      "lifeExpectancy": 61.9
+    },
+    {
+      "countryName": "Congo, Rep.",
+      "countryCode": "COG",
+      "year": 2023,
+      "lifeExpectancy": 65.8
+    },
+    {
+      "countryName": "Colombia",
+      "countryCode": "COL",
+      "year": 2023,
+      "lifeExpectancy": 77.7
+    },
+    {
+      "countryName": "Comoros",
+      "countryCode": "COM",
+      "year": 2023,
+      "lifeExpectancy": 66.8
+    },
+    {
+      "countryName": "Cabo Verde",
+      "countryCode": "CPV",
+      "year": 2023,
+      "lifeExpectancy": 76.1
+    },
+    {
+      "countryName": "Costa Rica",
+      "countryCode": "CRI",
+      "year": 2023,
+      "lifeExpectancy": 80.8
+    },
+    {
+      "countryName": "Caribbean small states",
+      "countryCode": "CSS",
+      "year": 2023,
+      "lifeExpectancy": 73.2
+    },
+    {
+      "countryName": "Cuba",
+      "countryCode": "CUB",
+      "year": 2023,
+      "lifeExpectancy": 78.1
+    },
+    {
+      "countryName": "Curacao",
+      "countryCode": "CUW",
+      "year": 2023,
+      "lifeExpectancy": 76.8
+    },
+    {
+      "countryName": "Cayman Islands",
+      "countryCode": "CYM",
+      "year": 2023,
+      "lifeExpectancy": 80.4
+    },
+    {
+      "countryName": "Cyprus",
+      "countryCode": "CYP",
+      "year": 2023,
+      "lifeExpectancy": 81.6
+    },
+    {
+      "countryName": "Czechia",
+      "countryCode": "CZE",
+      "year": 2023,
+      "lifeExpectancy": 79.9
+    },
+    {
+      "countryName": "Germany",
+      "countryCode": "DEU",
+      "year": 2023,
+      "lifeExpectancy": 80.5
+    },
+    {
+      "countryName": "Djibouti",
+      "countryCode": "DJI",
+      "year": 2023,
+      "lifeExpectancy": 66.0
+    },
+    {
+      "countryName": "Dominica",
+      "countryCode": "DMA",
+      "year": 2023,
+      "lifeExpectancy": 71.1
+    },
+    {
+      "countryName": "Denmark",
+      "countryCode": "DNK",
+      "year": 2023,
+      "lifeExpectancy": 81.9
+    },
+    {
+      "countryName": "Dominican Republic",
+      "countryCode": "DOM",
+      "year": 2023,
+      "lifeExpectancy": 73.7
+    },
+    {
+      "countryName": "Algeria",
+      "countryCode": "DZA",
+      "year": 2023,
+      "lifeExpectancy": 76.3
+    },
+    {
+      "countryName": "East Asia & Pacific (excluding high income)",
+      "countryCode": "EAP",
+      "year": 2023,
+      "lifeExpectancy": 75.9
+    },
+    {
+      "countryName": "Early-demographic dividend",
+      "countryCode": "EAR",
+      "year": 2023,
+      "lifeExpectancy": 71.8
+    },
+    {
+      "countryName": "East Asia & Pacific",
+      "countryCode": "EAS",
+      "year": 2023,
+      "lifeExpectancy": 76.7
+    },
+    {
+      "countryName": "Europe & Central Asia (excluding high income)",
+      "countryCode": "ECA",
+      "year": 2023,
+      "lifeExpectancy": 74.8
+    },
+    {
+      "countryName": "Europe & Central Asia",
+      "countryCode": "ECS",
+      "year": 2023,
+      "lifeExpectancy": 78.4
+    },
+    {
+      "countryName": "Ecuador",
+      "countryCode": "ECU",
+      "year": 2023,
+      "lifeExpectancy": 77.4
+    },
+    {
+      "countryName": "Egypt, Arab Rep.",
+      "countryCode": "EGY",
+      "year": 2023,
+      "lifeExpectancy": 71.6
+    },
+    {
+      "countryName": "Euro area",
+      "countryCode": "EMU",
+      "year": 2023,
+      "lifeExpectancy": 82.2
+    },
+    {
+      "countryName": "Eritrea",
+      "countryCode": "ERI",
+      "year": 2023,
+      "lifeExpectancy": 68.6
+    },
+    {
+      "countryName": "Spain",
+      "countryCode": "ESP",
+      "year": 2023,
+      "lifeExpectancy": 83.9
+    },
+    {
+      "countryName": "Estonia",
+      "countryCode": "EST",
+      "year": 2023,
+      "lifeExpectancy": 78.5
+    },
+    {
+      "countryName": "Ethiopia",
+      "countryCode": "ETH",
+      "year": 2023,
+      "lifeExpectancy": 67.3
+    },
+    {
+      "countryName": "European Union",
+      "countryCode": "EUU",
+      "year": 2023,
+      "lifeExpectancy": 81.4
+    },
+    {
+      "countryName": "Fragile and conflict affected situations",
+      "countryCode": "FCS",
+      "year": 2023,
+      "lifeExpectancy": 63.3
+    },
+    {
+      "countryName": "Finland",
+      "countryCode": "FIN",
+      "year": 2023,
+      "lifeExpectancy": 81.7
+    },
+    {
+      "countryName": "Fiji",
+      "countryCode": "FJI",
+      "year": 2023,
+      "lifeExpectancy": 67.3
+    },
+    {
+      "countryName": "France",
+      "countryCode": "FRA",
+      "year": 2023,
+      "lifeExpectancy": 82.9
+    },
+    {
+      "countryName": "Faroe Islands",
+      "countryCode": "FRO",
+      "year": 2023,
+      "lifeExpectancy": 83.1
+    },
+    {
+      "countryName": "Micronesia, Fed. Sts.",
+      "countryCode": "FSM",
+      "year": 2023,
+      "lifeExpectancy": 67.2
+    },
+    {
+      "countryName": "Gabon",
+      "countryCode": "GAB",
+      "year": 2023,
+      "lifeExpectancy": 68.3
+    },
+    {
+      "countryName": "United Kingdom",
+      "countryCode": "GBR",
+      "year": 2023,
+      "lifeExpectancy": 81.2
+    },
+    {
+      "countryName": "Georgia",
+      "countryCode": "GEO",
+      "year": 2023,
+      "lifeExpectancy": 74.5
+    },
+    {
+      "countryName": "Ghana",
+      "countryCode": "GHA",
+      "year": 2023,
+      "lifeExpectancy": 65.5
+    },
+    {
+      "countryName": "Gibraltar",
+      "countryCode": "GIB",
+      "year": 2023,
+      "lifeExpectancy": 83.6
+    },
+    {
+      "countryName": "Guinea",
+      "countryCode": "GIN",
+      "year": 2023,
+      "lifeExpectancy": 60.7
+    },
+    {
+      "countryName": "Gambia, The",
+      "countryCode": "GMB",
+      "year": 2023,
+      "lifeExpectancy": 65.9
+    },
+    {
+      "countryName": "Guinea-Bissau",
+      "countryCode": "GNB",
+      "year": 2023,
+      "lifeExpectancy": 64.1
+    },
+    {
+      "countryName": "Equatorial Guinea",
+      "countryCode": "GNQ",
+      "year": 2023,
+      "lifeExpectancy": 63.7
+    },
+    {
+      "countryName": "Greece",
+      "countryCode": "GRC",
+      "year": 2023,
+      "lifeExpectancy": 81.5
+    },
+    {
+      "countryName": "Grenada",
+      "countryCode": "GRD",
+      "year": 2023,
+      "lifeExpectancy": 75.2
+    },
+    {
+      "countryName": "Greenland",
+      "countryCode": "GRL",
+      "year": 2023,
+      "lifeExpectancy": 71.5
+    },
+    {
+      "countryName": "Guatemala",
+      "countryCode": "GTM",
+      "year": 2023,
+      "lifeExpectancy": 72.6
+    },
+    {
+      "countryName": "Guam",
+      "countryCode": "GUM",
+      "year": 2023,
+      "lifeExpectancy": 77.2
+    },
+    {
+      "countryName": "Guyana",
+      "countryCode": "GUY",
+      "year": 2023,
+      "lifeExpectancy": 70.2
+    },
+    {
+      "countryName": "High income",
+      "countryCode": "HIC",
+      "year": 2023,
+      "lifeExpectancy": 80.1
+    },
+    {
+      "countryName": "Hong Kong SAR, China",
+      "countryCode": "HKG",
+      "year": 2023,
+      "lifeExpectancy": 85.2
+    },
+    {
+      "countryName": "Honduras",
+      "countryCode": "HND",
+      "year": 2023,
+      "lifeExpectancy": 72.9
+    },
+    {
+      "countryName": "Heavily indebted poor countries (HIPC)",
+      "countryCode": "HPC",
+      "year": 2023,
+      "lifeExpectancy": 64.7
+    },
+    {
+      "countryName": "Croatia",
+      "countryCode": "HRV",
+      "year": 2023,
+      "lifeExpectancy": 78.5
+    },
+    {
+      "countryName": "Haiti",
+      "countryCode": "HTI",
+      "year": 2023,
+      "lifeExpectancy": 64.9
+    },
+    {
+      "countryName": "Hungary",
+      "countryCode": "HUN",
+      "year": 2023,
+      "lifeExpectancy": 76.8
+    },
+    {
+      "countryName": "IBRD only",
+      "countryCode": "IBD",
+      "year": 2023,
+      "lifeExpectancy": 74.5
+    },
+    {
+      "countryName": "IDA & IBRD total",
+      "countryCode": "IBT",
+      "year": 2023,
+      "lifeExpectancy": 72.0
+    },
+    {
+      "countryName": "IDA total",
+      "countryCode": "IDA",
+      "year": 2023,
+      "lifeExpectancy": 65.5
+    },
+    {
+      "countryName": "IDA blend",
+      "countryCode": "IDB",
+      "year": 2023,
+      "lifeExpectancy": 62.5
+    },
+    {
+      "countryName": "Indonesia",
+      "countryCode": "IDN",
+      "year": 2023,
+      "lifeExpectancy": 71.1
+    },
+    {
+      "countryName": "IDA only",
+      "countryCode": "IDX",
+      "year": 2023,
+      "lifeExpectancy": 67.1
+    },
+    {
+      "countryName": "Isle of Man",
+      "countryCode": "IMN",
+      "year": 2023,
+      "lifeExpectancy": 81.0
+    },
+    {
+      "countryName": "India",
+      "countryCode": "IND",
+      "year": 2023,
+      "lifeExpectancy": 72.0
+    },
+    {
+      "countryName": "Ireland",
+      "countryCode": "IRL",
+      "year": 2023,
+      "lifeExpectancy": 82.9
+    },
+    {
+      "countryName": "Iran, Islamic Rep.",
+      "countryCode": "IRN",
+      "year": 2023,
+      "lifeExpectancy": 77.7
+    },
+    {
+      "countryName": "Iraq",
+      "countryCode": "IRQ",
+      "year": 2023,
+      "lifeExpectancy": 72.3
+    },
+    {
+      "countryName": "Iceland",
+      "countryCode": "ISL",
+      "year": 2023,
+      "lifeExpectancy": 82.6
+    },
+    {
+      "countryName": "Israel",
+      "countryCode": "ISR",
+      "year": 2023,
+      "lifeExpectancy": 83.2
+    },
+    {
+      "countryName": "Italy",
+      "countryCode": "ITA",
+      "year": 2023,
+      "lifeExpectancy": 83.7
+    },
+    {
+      "countryName": "Jamaica",
+      "countryCode": "JAM",
+      "year": 2023,
+      "lifeExpectancy": 71.5
+    },
+    {
+      "countryName": "Jordan",
+      "countryCode": "JOR",
+      "year": 2023,
+      "lifeExpectancy": 77.8
+    },
+    {
+      "countryName": "Japan",
+      "countryCode": "JPN",
+      "year": 2023,
+      "lifeExpectancy": 84.0
+    },
+    {
+      "countryName": "Kazakhstan",
+      "countryCode": "KAZ",
+      "year": 2023,
+      "lifeExpectancy": 74.4
+    },
+    {
+      "countryName": "Kenya",
+      "countryCode": "KEN",
+      "year": 2023,
+      "lifeExpectancy": 63.6
+    },
+    {
+      "countryName": "Kyrgyz Republic",
+      "countryCode": "KGZ",
+      "year": 2023,
+      "lifeExpectancy": 72.2
+    },
+    {
+      "countryName": "Cambodia",
+      "countryCode": "KHM",
+      "year": 2023,
+      "lifeExpectancy": 70.7
+    },
+    {
+      "countryName": "Kiribati",
+      "countryCode": "KIR",
+      "year": 2023,
+      "lifeExpectancy": 66.5
+    },
+    {
+      "countryName": "St. Kitts and Nevis",
+      "countryCode": "KNA",
+      "year": 2023,
+      "lifeExpectancy": 72.1
+    },
+    {
+      "countryName": "Korea, Rep.",
+      "countryCode": "KOR",
+      "year": 2023,
+      "lifeExpectancy": 83.4
+    },
+    {
+      "countryName": "Kuwait",
+      "countryCode": "KWT",
+      "year": 2023,
+      "lifeExpectancy": 83.2
+    },
+    {
+      "countryName": "Latin America & Caribbean (excluding high income)",
+      "countryCode": "LAC",
+      "year": 2023,
+      "lifeExpectancy": 75.5
+    },
+    {
+      "countryName": "Lao PDR",
+      "countryCode": "LAO",
+      "year": 2023,
+      "lifeExpectancy": 69.0
+    },
+    {
+      "countryName": "Lebanon",
+      "countryCode": "LBN",
+      "year": 2023,
+      "lifeExpectancy": 77.8
+    },
+    {
+      "countryName": "Liberia",
+      "countryCode": "LBR",
+      "year": 2023,
+      "lifeExpectancy": 62.2
+    },
+    {
+      "countryName": "Libya",
+      "countryCode": "LBY",
+      "year": 2023,
+      "lifeExpectancy": 69.3
+    },
+    {
+      "countryName": "St. Lucia",
+      "countryCode": "LCA",
+      "year": 2023,
+      "lifeExpectancy": 72.7
+    },
+    {
+      "countryName": "Latin America & Caribbean",
+      "countryCode": "LCN",
+      "year": 2023,
+      "lifeExpectancy": 75.6
+    },
+    {
+      "countryName": "Least developed countries: UN classification",
+      "countryCode": "LDC",
+      "year": 2023,
+      "lifeExpectancy": 66.5
+    },
+    {
+      "countryName": "Low income",
+      "countryCode": "LIC",
+      "year": 2023,
+      "lifeExpectancy": 64.5
+    },
+    {
+      "countryName": "Liechtenstein",
+      "countryCode": "LIE",
+      "year": 2023,
+      "lifeExpectancy": 84.8
+    },
+    {
+      "countryName": "Sri Lanka",
+      "countryCode": "LKA",
+      "year": 2023,
+      "lifeExpectancy": 77.5
+    },
+    {
+      "countryName": "Lower middle income",
+      "countryCode": "LMC",
+      "year": 2023,
+      "lifeExpectancy": 69.6
+    },
+    {
+      "countryName": "Low & middle income",
+      "countryCode": "LMY",
+      "year": 2023,
+      "lifeExpectancy": 72.0
+    },
+    {
+      "countryName": "Lesotho",
+      "countryCode": "LSO",
+      "year": 2023,
+      "lifeExpectancy": 57.4
+    },
+    {
+      "countryName": "Late-demographic dividend",
+      "countryCode": "LTE",
+      "year": 2023,
+      "lifeExpectancy": 77.1
+    },
+    {
+      "countryName": "Lithuania",
+      "countryCode": "LTU",
+      "year": 2023,
+      "lifeExpectancy": 77.0
+    },
+    {
+      "countryName": "Luxembourg",
+      "countryCode": "LUX",
+      "year": 2023,
+      "lifeExpectancy": 83.4
+    },
+    {
+      "countryName": "Latvia",
+      "countryCode": "LVA",
+      "year": 2023,
+      "lifeExpectancy": 75.7
+    },
+    {
+      "countryName": "Macao SAR, China",
+      "countryCode": "MAC",
+      "year": 2023,
+      "lifeExpectancy": 83.2
+    },
+    {
+      "countryName": "St. Martin (French part)",
+      "countryCode": "MAF",
+      "year": 2023,
+      "lifeExpectancy": 80.2
+    },
+    {
+      "countryName": "Morocco",
+      "countryCode": "MAR",
+      "year": 2023,
+      "lifeExpectancy": 75.3
+    },
+    {
+      "countryName": "Monaco",
+      "countryCode": "MCO",
+      "year": 2023,
+      "lifeExpectancy": 86.4
+    },
+    {
+      "countryName": "Moldova",
+      "countryCode": "MDA",
+      "year": 2023,
+      "lifeExpectancy": 71.2
+    },
+    {
+      "countryName": "Madagascar",
+      "countryCode": "MDG",
+      "year": 2023,
+      "lifeExpectancy": 63.6
+    },
+    {
+      "countryName": "Maldives",
+      "countryCode": "MDV",
+      "year": 2023,
+      "lifeExpectancy": 81.0
+    },
+    {
+      "countryName": "Middle East, North Africa, Afghanistan & Pakistan",
+      "countryCode": "MEA",
+      "year": 2023,
+      "lifeExpectancy": 72.1
+    },
+    {
+      "countryName": "Mexico",
+      "countryCode": "MEX",
+      "year": 2023,
+      "lifeExpectancy": 75.1
+    },
+    {
+      "countryName": "Marshall Islands",
+      "countryCode": "MHL",
+      "year": 2023,
+      "lifeExpectancy": 66.9
+    },
+    {
+      "countryName": "Middle income",
+      "countryCode": "MIC",
+      "year": 2023,
+      "lifeExpectancy": 72.7
+    },
+    {
+      "countryName": "North Macedonia",
+      "countryCode": "MKD",
+      "year": 2023,
+      "lifeExpectancy": 75.3
+    },
+    {
+      "countryName": "Mali",
+      "countryCode": "MLI",
+      "year": 2023,
+      "lifeExpectancy": 60.4
+    },
+    {
+      "countryName": "Malta",
+      "countryCode": "MLT",
+      "year": 2023,
+      "lifeExpectancy": 83.5
+    },
+    {
+      "countryName": "Myanmar",
+      "countryCode": "MMR",
+      "year": 2023,
+      "lifeExpectancy": 66.9
+    },
+    {
+      "countryName": "Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",
+      "countryCode": "MNA",
+      "year": 2023,
+      "lifeExpectancy": 71.3
+    },
+    {
+      "countryName": "Montenegro",
+      "countryCode": "MNE",
+      "year": 2023,
+      "lifeExpectancy": 77.6
+    },
+    {
+      "countryName": "Mongolia",
+      "countryCode": "MNG",
+      "year": 2023,
+      "lifeExpectancy": 72.1
+    },
+    {
+      "countryName": "Northern Mariana Islands",
+      "countryCode": "MNP",
+      "year": 2023,
+      "lifeExpectancy": 78.8
+    },
+    {
+      "countryName": "Mozambique",
+      "countryCode": "MOZ",
+      "year": 2023,
+      "lifeExpectancy": 63.6
+    },
+    {
+      "countryName": "Mauritania",
+      "countryCode": "MRT",
+      "year": 2023,
+      "lifeExpectancy": 68.5
+    },
+    {
+      "countryName": "Mauritius",
+      "countryCode": "MUS",
+      "year": 2023,
+      "lifeExpectancy": 73.4
+    },
+    {
+      "countryName": "Malawi",
+      "countryCode": "MWI",
+      "year": 2023,
+      "lifeExpectancy": 67.4
+    },
+    {
+      "countryName": "Malaysia",
+      "countryCode": "MYS",
+      "year": 2023,
+      "lifeExpectancy": 76.7
+    },
+    {
+      "countryName": "North America",
+      "countryCode": "NAC",
+      "year": 2023,
+      "lifeExpectancy": 78.7
+    },
+    {
+      "countryName": "Namibia",
+      "countryCode": "NAM",
+      "year": 2023,
+      "lifeExpectancy": 67.4
+    },
+    {
+      "countryName": "New Caledonia",
+      "countryCode": "NCL",
+      "year": 2023,
+      "lifeExpectancy": 78.8
+    },
+    {
+      "countryName": "Niger",
+      "countryCode": "NER",
+      "year": 2023,
+      "lifeExpectancy": 61.2
+    },
+    {
+      "countryName": "Nigeria",
+      "countryCode": "NGA",
+      "year": 2023,
+      "lifeExpectancy": 54.5
+    },
+    {
+      "countryName": "Nicaragua",
+      "countryCode": "NIC",
+      "year": 2023,
+      "lifeExpectancy": 74.9
+    },
+    {
+      "countryName": "Netherlands",
+      "countryCode": "NLD",
+      "year": 2023,
+      "lifeExpectancy": 81.9
+    },
+    {
+      "countryName": "Norway",
+      "countryCode": "NOR",
+      "year": 2023,
+      "lifeExpectancy": 83.1
+    },
+    {
+      "countryName": "Nepal",
+      "countryCode": "NPL",
+      "year": 2023,
+      "lifeExpectancy": 70.4
+    },
+    {
+      "countryName": "Nauru",
+      "countryCode": "NRU",
+      "year": 2023,
+      "lifeExpectancy": 62.1
+    },
+    {
+      "countryName": "New Zealand",
+      "countryCode": "NZL",
+      "year": 2023,
+      "lifeExpectancy": 83.0
+    },
+    {
+      "countryName": "OECD members",
+      "countryCode": "OED",
+      "year": 2023,
+      "lifeExpectancy": 80.2
+    },
+    {
+      "countryName": "Oman",
+      "countryCode": "OMN",
+      "year": 2023,
+      "lifeExpectancy": 80.0
+    },
+    {
+      "countryName": "Other small states",
+      "countryCode": "OSS",
+      "year": 2023,
+      "lifeExpectancy": 73.6
+    },
+    {
+      "countryName": "Pakistan",
+      "countryCode": "PAK",
+      "year": 2023,
+      "lifeExpectancy": 67.6
+    },
+    {
+      "countryName": "Panama",
+      "countryCode": "PAN",
+      "year": 2023,
+      "lifeExpectancy": 79.6
+    },
+    {
+      "countryName": "Peru",
+      "countryCode": "PER",
+      "year": 2023,
+      "lifeExpectancy": 77.7
+    },
+    {
+      "countryName": "Philippines",
+      "countryCode": "PHL",
+      "year": 2023,
+      "lifeExpectancy": 69.8
+    },
+    {
+      "countryName": "Palau",
+      "countryCode": "PLW",
+      "year": 2023,
+      "lifeExpectancy": 69.3
+    },
+    {
+      "countryName": "Papua New Guinea",
+      "countryCode": "PNG",
+      "year": 2023,
+      "lifeExpectancy": 66.1
+    },
+    {
+      "countryName": "Poland",
+      "countryCode": "POL",
+      "year": 2023,
+      "lifeExpectancy": 78.5
+    },
+    {
+      "countryName": "Pre-demographic dividend",
+      "countryCode": "PRE",
+      "year": 2023,
+      "lifeExpectancy": 62.2
+    },
+    {
+      "countryName": "Puerto Rico (US)",
+      "countryCode": "PRI",
+      "year": 2023,
+      "lifeExpectancy": 81.7
+    },
+    {
+      "countryName": "Korea, Dem. People's Rep.",
+      "countryCode": "PRK",
+      "year": 2023,
+      "lifeExpectancy": 73.6
+    },
+    {
+      "countryName": "Portugal",
+      "countryCode": "PRT",
+      "year": 2023,
+      "lifeExpectancy": 82.3
+    },
+    {
+      "countryName": "Paraguay",
+      "countryCode": "PRY",
+      "year": 2023,
+      "lifeExpectancy": 73.8
+    },
+    {
+      "countryName": "West Bank and Gaza",
+      "countryCode": "PSE",
+      "year": 2023,
+      "lifeExpectancy": 65.2
+    },
+    {
+      "countryName": "Pacific island small states",
+      "countryCode": "PSS",
+      "year": 2023,
+      "lifeExpectancy": 69.3
+    },
+    {
+      "countryName": "Post-demographic dividend",
+      "countryCode": "PST",
+      "year": 2023,
+      "lifeExpectancy": 80.8
+    },
+    {
+      "countryName": "French Polynesia",
+      "countryCode": "PYF",
+      "year": 2023,
+      "lifeExpectancy": 84.1
+    },
+    {
+      "countryName": "Qatar",
+      "countryCode": "QAT",
+      "year": 2023,
+      "lifeExpectancy": 82.4
+    },
+    {
+      "countryName": "Romania",
+      "countryCode": "ROU",
+      "year": 2023,
+      "lifeExpectancy": 76.6
+    },
+    {
+      "countryName": "Rwanda",
+      "countryCode": "RWA",
+      "year": 2023,
+      "lifeExpectancy": 67.8
+    },
+    {
+      "countryName": "South Asia",
+      "countryCode": "SAS",
+      "year": 2023,
+      "lifeExpectancy": 72.3
+    },
+    {
+      "countryName": "Saudi Arabia",
+      "countryCode": "SAU",
+      "year": 2023,
+      "lifeExpectancy": 78.7
+    },
+    {
+      "countryName": "Sudan",
+      "countryCode": "SDN",
+      "year": 2023,
+      "lifeExpectancy": 66.3
+    },
+    {
+      "countryName": "Senegal",
+      "countryCode": "SEN",
+      "year": 2023,
+      "lifeExpectancy": 68.7
+    },
+    {
+      "countryName": "Singapore",
+      "countryCode": "SGP",
+      "year": 2023,
+      "lifeExpectancy": 82.9
+    },
+    {
+      "countryName": "Solomon Islands",
+      "countryCode": "SLB",
+      "year": 2023,
+      "lifeExpectancy": 70.5
+    },
+    {
+      "countryName": "Sierra Leone",
+      "countryCode": "SLE",
+      "year": 2023,
+      "lifeExpectancy": 61.8
+    },
+    {
+      "countryName": "El Salvador",
+      "countryCode": "SLV",
+      "year": 2023,
+      "lifeExpectancy": 72.1
+    },
+    {
+      "countryName": "San Marino",
+      "countryCode": "SMR",
+      "year": 2023,
+      "lifeExpectancy": 85.7
+    },
+    {
+      "countryName": "Somalia, Fed. Rep.",
+      "countryCode": "SOM",
+      "year": 2023,
+      "lifeExpectancy": 58.8
+    },
+    {
+      "countryName": "Serbia",
+      "countryCode": "SRB",
+      "year": 2023,
+      "lifeExpectancy": 76.2
+    },
+    {
+      "countryName": "Sub-Saharan Africa (excluding high income)",
+      "countryCode": "SSA",
+      "year": 2023,
+      "lifeExpectancy": 62.1
+    },
+    {
+      "countryName": "South Sudan",
+      "countryCode": "SSD",
+      "year": 2023,
+      "lifeExpectancy": 57.6
+    },
+    {
+      "countryName": "Sub-Saharan Africa",
+      "countryCode": "SSF",
+      "year": 2023,
+      "lifeExpectancy": 62.6
+    },
+    {
+      "countryName": "Small states",
+      "countryCode": "SST",
+      "year": 2023,
+      "lifeExpectancy": 72.9
+    },
+    {
+      "countryName": "Sao Tome and Principe",
+      "countryCode": "STP",
+      "year": 2023,
+      "lifeExpectancy": 69.7
+    },
+    {
+      "countryName": "Suriname",
+      "countryCode": "SUR",
+      "year": 2023,
+      "lifeExpectancy": 73.6
+    },
+    {
+      "countryName": "Slovak Republic",
+      "countryCode": "SVK",
+      "year": 2023,
+      "lifeExpectancy": 78.0
+    },
+    {
+      "countryName": "Slovenia",
+      "countryCode": "SVN",
+      "year": 2023,
+      "lifeExpectancy": 82.0
+    },
+    {
+      "countryName": "Sweden",
+      "countryCode": "SWE",
+      "year": 2023,
+      "lifeExpectancy": 83.3
+    },
+    {
+      "countryName": "Eswatini",
+      "countryCode": "SWZ",
+      "year": 2023,
+      "lifeExpectancy": 64.1
+    },
+    {
+      "countryName": "Sint Maarten (Dutch part)",
+      "countryCode": "SXM",
+      "year": 2023,
+      "lifeExpectancy": 76.4
+    },
+    {
+      "countryName": "Seychelles",
+      "countryCode": "SYC",
+      "year": 2023,
+      "lifeExpectancy": 75.0
+    },
+    {
+      "countryName": "Syrian Arab Republic",
+      "countryCode": "SYR",
+      "year": 2023,
+      "lifeExpectancy": 72.1
+    },
+    {
+      "countryName": "Turks and Caicos Islands",
+      "countryCode": "TCA",
+      "year": 2023,
+      "lifeExpectancy": 78.0
+    },
+    {
+      "countryName": "Chad",
+      "countryCode": "TCD",
+      "year": 2023,
+      "lifeExpectancy": 55.1
+    },
+    {
+      "countryName": "East Asia & Pacific (IDA & IBRD countries)",
+      "countryCode": "TEA",
+      "year": 2023,
+      "lifeExpectancy": 75.9
+    },
+    {
+      "countryName": "Europe & Central Asia (IDA & IBRD countries)",
+      "countryCode": "TEC",
+      "year": 2023,
+      "lifeExpectancy": 74.7
+    },
+    {
+      "countryName": "Togo",
+      "countryCode": "TGO",
+      "year": 2023,
+      "lifeExpectancy": 62.7
+    },
+    {
+      "countryName": "Thailand",
+      "countryCode": "THA",
+      "year": 2023,
+      "lifeExpectancy": 76.4
+    },
+    {
+      "countryName": "Tajikistan",
+      "countryCode": "TJK",
+      "year": 2023,
+      "lifeExpectancy": 71.8
+    },
+    {
+      "countryName": "Turkmenistan",
+      "countryCode": "TKM",
+      "year": 2023,
+      "lifeExpectancy": 70.1
+    },
+    {
+      "countryName": "Latin America & the Caribbean (IDA & IBRD countries)",
+      "countryCode": "TLA",
+      "year": 2023,
+      "lifeExpectancy": 75.6
+    },
+    {
+      "countryName": "Timor-Leste",
+      "countryCode": "TLS",
+      "year": 2023,
+      "lifeExpectancy": 67.7
+    },
+    {
+      "countryName": "Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",
+      "countryCode": "TMN",
+      "year": 2023,
+      "lifeExpectancy": 71.3
+    },
+    {
+      "countryName": "Tonga",
+      "countryCode": "TON",
+      "year": 2023,
+      "lifeExpectancy": 72.9
+    },
+    {
+      "countryName": "South Asia (IDA & IBRD)",
+      "countryCode": "TSA",
+      "year": 2023,
+      "lifeExpectancy": 72.3
+    },
+    {
+      "countryName": "Sub-Saharan Africa (IDA & IBRD countries)",
+      "countryCode": "TSS",
+      "year": 2023,
+      "lifeExpectancy": 62.6
+    },
+    {
+      "countryName": "Trinidad and Tobago",
+      "countryCode": "TTO",
+      "year": 2023,
+      "lifeExpectancy": 73.5
+    },
+    {
+      "countryName": "Tunisia",
+      "countryCode": "TUN",
+      "year": 2023,
+      "lifeExpectancy": 76.5
+    },
+    {
+      "countryName": "Turkiye",
+      "countryCode": "TUR",
+      "year": 2023,
+      "lifeExpectancy": 77.2
+    },
+    {
+      "countryName": "Tuvalu",
+      "countryCode": "TUV",
+      "year": 2023,
+      "lifeExpectancy": 67.1
+    },
+    {
+      "countryName": "Tanzania",
+      "countryCode": "TZA",
+      "year": 2023,
+      "lifeExpectancy": 67.0
+    },
+    {
+      "countryName": "Uganda",
+      "countryCode": "UGA",
+      "year": 2023,
+      "lifeExpectancy": 68.3
+    },
+    {
+      "countryName": "Ukraine",
+      "countryCode": "UKR",
+      "year": 2023,
+      "lifeExpectancy": 73.4
+    },
+    {
+      "countryName": "Upper middle income",
+      "countryCode": "UMC",
+      "year": 2023,
+      "lifeExpectancy": 76.2
+    },
+    {
+      "countryName": "Uruguay",
+      "countryCode": "URY",
+      "year": 2023,
+      "lifeExpectancy": 78.1
+    },
+    {
+      "countryName": "United States",
+      "countryCode": "USA",
+      "year": 2023,
+      "lifeExpectancy": 78.4
+    },
+    {
+      "countryName": "Uzbekistan",
+      "countryCode": "UZB",
+      "year": 2023,
+      "lifeExpectancy": 72.4
+    },
+    {
+      "countryName": "St. Vincent and the Grenadines",
+      "countryCode": "VCT",
+      "year": 2023,
+      "lifeExpectancy": 71.2
+    },
+    {
+      "countryName": "Venezuela, RB",
+      "countryCode": "VEN",
+      "year": 2023,
+      "lifeExpectancy": 72.5
+    },
+    {
+      "countryName": "British Virgin Islands",
+      "countryCode": "VGB",
+      "year": 2023,
+      "lifeExpectancy": 77.3
+    },
+    {
+      "countryName": "Virgin Islands (U.S.)",
+      "countryCode": "VIR",
+      "year": 2023,
+      "lifeExpectancy": 80.5
+    },
+    {
+      "countryName": "Viet Nam",
+      "countryCode": "VNM",
+      "year": 2023,
+      "lifeExpectancy": 74.6
+    },
+    {
+      "countryName": "Vanuatu",
+      "countryCode": "VUT",
+      "year": 2023,
+      "lifeExpectancy": 71.5
+    },
+    {
+      "countryName": "World",
+      "countryCode": "WLD",
+      "year": 2023,
+      "lifeExpectancy": 73.3
+    },
+    {
+      "countryName": "Samoa",
+      "countryCode": "WSM",
+      "year": 2023,
+      "lifeExpectancy": 71.7
+    },
+    {
+      "countryName": "Kosovo",
+      "countryCode": "XKX",
+      "year": 2023,
+      "lifeExpectancy": 78.0
+    },
+    {
+      "countryName": "Yemen, Rep.",
+      "countryCode": "YEM",
+      "year": 2023,
+      "lifeExpectancy": 69.3
+    },
+    {
+      "countryName": "South Africa",
+      "countryCode": "ZAF",
+      "year": 2023,
+      "lifeExpectancy": 66.1
+    },
+    {
+      "countryName": "Zambia",
+      "countryCode": "ZMB",
+      "year": 2023,
+      "lifeExpectancy": 66.3
+    },
+    {
+      "countryName": "Zimbabwe",
+      "countryCode": "ZWE",
+      "year": 2023,
+      "lifeExpectancy": 62.8
+    }
+  ],
+  "totalRecords": 265
+}
