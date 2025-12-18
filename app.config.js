@@ -1,23 +1,31 @@
 export default ({ config, eas }) => {
   const profile = eas?.profile ?? "production";
 
+  // Logic to determine the bundle identifier (Package Name)
   const androidPackage =
     profile === "development"
       ? "com.deadsign.lifeplanner.dev"
       : profile === "preview"
       ? "com.deadsign.lifeplanner.preview"
+      : profile === "production-apk"
+      ? "com.deadsign.lifeplanner.apk" // Unique ID for the APK build
       : "com.deadsign.lifeplanner";
+
+  // Logic to determine the App Name on the home screen
+  const appName =
+    profile === "development"
+      ? "LifePlanner Dev"
+      : profile === "preview"
+      ? "LifePlanner Preview"
+      : profile === "production-apk"
+      ? "LifePlanner APK" // Distinct name for the APK build
+      : "LifePlanner";
 
   return {
     ...config,
     expo: {
       ...config.expo,
-      name:
-        profile === "development"
-          ? "LifePlanner Dev"
-          : profile === "preview"
-          ? "LifePlanner Preview"
-          : "LifePlanner",
+      name: appName,
       slug: "deadsign",
       version: "1.0.0",
       orientation: "portrait",
@@ -48,6 +56,19 @@ export default ({ config, eas }) => {
 
       plugins: [
         "expo-router",
+        [
+          "expo-build-properties",
+          {
+            android: {
+              // enableProguardInReleaseBuilds: true,
+              // enableShrinkResourcesInReleaseBuilds: true,
+              useLegacyPackaging: true,
+            },
+            ios: {
+              deploymentTarget: "15.1",
+            },
+          },
+        ],
         [
           "expo-splash-screen",
           {
