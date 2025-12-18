@@ -1,24 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { CountrySelector } from "@/src/components/country-selector";
+import { DateInputCard } from "@/src/components/date-input-card";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
-import { countries } from "@/src/data/countries";
 import { useLoadingStore } from "@/src/store/loading-store";
 import { useUserStore } from "@/src/store/user-store";
-import { calculateLifeExpectancy } from "@/src/utils/life-expactancy";
+import { calculateAge } from "@/src/utils/user-stats";
 
 export default function ModalScreen() {
   const { user, setUser } = useUserStore();
@@ -26,43 +27,41 @@ export default function ModalScreen() {
 
   const [name, setName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
-  const [country, setCountry] = useState("Ukraine");
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [country, setCountry] = useState("");
+  const [countryLifeExpectancy, setCountryLifeExpectancy] = useState(0);
 
   const [isManualMode, setIsManualMode] = useState(false);
   const [manualDeathDate, setManualDeathDate] = useState(() => {
-    const defaultDate = new Date(dateOfBirth);
+    const defaultDate = new Date();
     defaultDate.setFullYear(defaultDate.getFullYear() + 80);
     return defaultDate;
   });
-  const [showManualDatePicker, setShowManualDatePicker] = useState(false);
 
   useEffect(() => {
     if (user) {
       setName(user.name || "");
       setDateOfBirth(user.dateOfBirth || new Date());
-      setCountry(user.country || "Ukraine");
+      setCountry(user.country || "");
+      setCountryLifeExpectancy(user.lifeExpectancy || 0);
     }
   }, [user]);
 
   const handleSave = async () => {
     setGlobalLoading(true);
-
     const lifeExpectancy = isManualMode
       ? Math.floor(
           (manualDeathDate.getTime() - dateOfBirth.getTime()) /
             (1000 * 60 * 60 * 24 * 365.25)
         )
-      : calculateLifeExpectancy(dateOfBirth, country);
+      : countryLifeExpectancy;
 
-    await setUser({
-      name,
-      dateOfBirth,
-      country,
-      lifeExpectancy,
-    });
-
+    await setUser({ name, dateOfBirth, country, lifeExpectancy });
     router.back();
+  };
+
+  const handleCountrySelect = (countryName: string, lifeExpectancy: number) => {
+    setCountry(countryName);
+    setCountryLifeExpectancy(lifeExpectancy);
   };
 
   const calculateExpectedYears = () =>
@@ -70,12 +69,6 @@ export default function ModalScreen() {
       (manualDeathDate.getTime() - dateOfBirth.getTime()) /
         (1000 * 60 * 60 * 24 * 365.25)
     );
-
-  const calculateCurrentAge = (dob: Date) => {
-    return Math.floor(
-      (new Date().getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
-    );
-  };
 
   const toggleManualMode = () => {
     setIsManualMode(!isManualMode);
@@ -88,365 +81,181 @@ export default function ModalScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.closeButton}>
-          <Ionicons name="close" size={24} color={Colors.textPrimary} />
-        </Pressable>
-        <Text variant="subtitle" style={styles.title}>
-          Edit Profile
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Card style={styles.section}>
-          <Text variant="body" style={styles.sectionLabel}>
-            Name
-          </Text>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="Enter your name"
-            placeholderTextColor={Colors.placeholder}
-          />
-        </Card>
-
-        <Card style={styles.section}>
-          <Text variant="body" style={styles.sectionLabel}>
-            Date of Birth
-          </Text>
-          <Pressable
-            style={styles.dateInputButton}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Text style={styles.dateText}>
-              {dateOfBirth.toLocaleDateString()}
-            </Text>
-            <Ionicons name="calendar" size={20} color={Colors.textMuted} />
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()} style={styles.closeButton}>
+            <Ionicons name="close" size={24} color={Colors.textPrimary} />
           </Pressable>
-
-          <View style={styles.ageDisplay}>
-            <Text style={styles.ageText}>
-              Current age: {calculateCurrentAge(dateOfBirth)} years
-            </Text>
-          </View>
-        </Card>
-
-        <Card style={styles.section}>
-          <Text variant="body" style={styles.sectionLabel}>
-            Life Expectancy
+          <Text variant="subtitle" style={styles.title}>
+            Edit Profile
           </Text>
-          <View style={styles.modeToggle}>
-            <Pressable
-              style={[
-                styles.toggleButton,
-                !isManualMode && styles.toggleButtonActive,
-              ]}
-              onPress={() => setIsManualMode(false)}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  !isManualMode && styles.toggleTextActive,
-                ]}
-              >
-                By Country
+          <View style={styles.placeholder} />
+        </View>
+
+        <View style={styles.contentContainer}>
+          <View style={styles.staticSection}>
+            <Card style={styles.card}>
+              <Text variant="body" style={styles.sectionLabel}>
+                Name
               </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.toggleButton,
-                isManualMode && styles.toggleButtonActive,
-              ]}
-              onPress={toggleManualMode}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  isManualMode && styles.toggleTextActive,
-                ]}
-              >
-                Manual Date
-              </Text>
-            </Pressable>
+              <TextInput
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="Enter your name"
+                placeholderTextColor={Colors.placeholder}
+              />
+            </Card>
+
+            <DateInputCard
+              label="Date of Birth"
+              date={dateOfBirth}
+              onDateChange={setDateOfBirth}
+              maximumDate={new Date()}
+              infoText={`Age: ${calculateAge(dateOfBirth)}`}
+            />
           </View>
 
-          {!isManualMode ? (
-            <View style={styles.countryContainer}>
-              <ScrollView
-                style={styles.countryScrollView}
-                nestedScrollEnabled={true}
-              >
-                {countries.map((item) => (
-                  <Pressable
-                    key={item.name}
-                    style={[
-                      styles.countryItem,
-                      country === item.name && styles.countryItemSelected,
-                    ]}
-                    onPress={() => setCountry(item.name)}
-                  >
-                    <Text style={styles.flag}>{item.flag}</Text>
-                    <View style={styles.countryInfo}>
-                      <Text
-                        style={[
-                          styles.countryName,
-                          country === item.name && styles.countryNameSelected,
-                        ]}
-                      >
-                        {item.name}
-                      </Text>
-                      <Text style={styles.lifeExpectancyText}>
-                        Life expectancy: {item.lifeExpectancy} years
-                      </Text>
-                    </View>
-                    {country === item.name && (
-                      <View style={styles.selectedIndicator}>
-                        <Text style={styles.checkmark}>✓</Text>
-                      </View>
-                    )}
-                  </Pressable>
-                ))}
-              </ScrollView>
-            </View>
-          ) : (
-            <>
+          <Card style={styles.flexibleCard}>
+            <Text variant="body" style={styles.sectionLabel}>
+              Life Expectancy Setup
+            </Text>
+
+            <View style={styles.modeToggle}>
               <Pressable
-                style={styles.dateButton}
-                onPress={() => setShowManualDatePicker(true)}
+                style={[
+                  styles.toggleButton,
+                  !isManualMode && styles.toggleButtonActive,
+                ]}
+                onPress={() => setIsManualMode(false)}
               >
-                <Text style={styles.manualDateText}>
-                  {manualDeathDate.toLocaleDateString()}
+                <Text
+                  style={[
+                    styles.toggleText,
+                    !isManualMode && styles.toggleTextActive,
+                  ]}
+                >
+                  By Country
                 </Text>
-                <Text style={styles.dateHint}>Tap to change death date</Text>
               </Pressable>
-              <View style={styles.selectionSummary}>
-                <Text style={styles.summaryText}>
-                  Expected lifespan: {calculateExpectedYears()} years
+              <Pressable
+                style={[
+                  styles.toggleButton,
+                  isManualMode && styles.toggleButtonActive,
+                ]}
+                onPress={toggleManualMode}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    isManualMode && styles.toggleTextActive,
+                  ]}
+                >
+                  Manual Date
                 </Text>
-              </View>
-            </>
-          )}
-        </Card>
+              </Pressable>
+            </View>
 
-        {showDatePicker && (
-          <DateTimePicker
-            value={dateOfBirth}
-            mode="date"
-            display="default"
-            maximumDate={new Date()}
-            onChange={(event, selectedDate) => {
-              setShowDatePicker(false);
-              if (selectedDate) {
-                setDateOfBirth(selectedDate);
-              }
-            }}
-          />
-        )}
+            {!isManualMode ? (
+              <CountrySelector
+                selectedCountry={country}
+                onCountrySelect={handleCountrySelect}
+                style={{ flex: 1 }}
+              />
+            ) : (
+              <DateInputCard
+                label="Death Date"
+                date={manualDeathDate}
+                onDateChange={setManualDeathDate}
+                minimumDate={
+                  new Date(dateOfBirth.getTime() + 365 * 24 * 60 * 60 * 1000)
+                }
+                infoText={`Lifespan: ${calculateExpectedYears()} yrs`}
+              />
+            )}
+          </Card>
+        </View>
 
-        {showManualDatePicker && (
-          <DateTimePicker
-            value={manualDeathDate}
-            mode="date"
-            display="default"
-            minimumDate={
-              new Date(dateOfBirth.getTime() + 365 * 24 * 60 * 60 * 1000)
-            }
-            onChange={(event, selectedDate) => {
-              setShowManualDatePicker(false);
-              if (selectedDate) {
-                setManualDeathDate(selectedDate);
-              }
-            }}
-          />
-        )}
-
-        <Button onPress={handleSave} style={styles.saveButton}>
-          Save Changes
-        </Button>
-      </ScrollView>
+        <View style={styles.footer}>
+          <Button onPress={handleSave}>Save Changes</Button>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  closeButton: {
-    padding: 8,
-  },
-  title: {
-    color: Colors.textPrimary,
-  },
-  placeholder: {
-    width: 40,
-  },
-  scrollContent: {
-    padding: 20,
-  },
-  section: {
-    marginBottom: 20,
+  closeButton: { padding: 4 },
+  title: { color: Colors.textPrimary },
+  placeholder: { width: 32 },
+
+  contentContainer: {
+    flex: 1,
     padding: 16,
+    gap: 16,
+  },
+  staticSection: {
+    gap: 16,
+  },
+  card: {
+    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+  },
+  flexibleCard: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    overflow: "hidden",
   },
   sectionLabel: {
     color: Colors.textSecondary,
-    marginBottom: 12,
+    marginBottom: 8,
     fontSize: 14,
     fontWeight: "600",
   },
   input: {
     backgroundColor: Colors.inputBackground,
-    padding: 16,
-    borderRadius: 12,
-    color: Colors.textPrimary,
-    fontSize: 16,
-  },
-  dateInputButton: {
-    backgroundColor: Colors.inputBackground,
-    padding: 16,
-    borderRadius: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  dateText: {
-    color: Colors.textPrimary,
-    fontSize: 16,
-  },
-
-  ageDisplay: {
-    marginTop: 16,
     padding: 12,
-    backgroundColor: Colors.surfaceSecondary,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  ageText: {
-    color: Colors.accentPrimary,
+    borderRadius: 12,
+    color: Colors.textPrimary,
     fontSize: 16,
-    fontWeight: "600",
   },
   modeToggle: {
     flexDirection: "row",
     backgroundColor: Colors.inputBackground,
     borderRadius: 12,
     padding: 4,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   toggleButton: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 8,
     alignItems: "center",
   },
-  toggleButtonActive: {
-    backgroundColor: Colors.accentPrimary,
-  },
-  toggleText: {
-    color: Colors.textSecondary,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  toggleTextActive: {
-    color: Colors.background,
-  },
-  countryContainer: {
-    maxHeight: 250,
-  },
-  countryScrollView: {},
-  countryItem: {
-    flexDirection: "row",
-    alignItems: "center",
+  toggleButtonActive: { backgroundColor: Colors.accentPrimary },
+  toggleText: { color: Colors.textSecondary, fontWeight: "600" },
+  toggleTextActive: { color: Colors.background },
+
+  footer: {
     padding: 16,
-    backgroundColor: Colors.surfaceSecondary,
-    borderRadius: 12,
-    marginBottom: 8,
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  countryItemSelected: {
-    borderColor: Colors.accentPrimary,
-    backgroundColor: Colors.surface,
-  },
-  flag: {
-    fontSize: 24,
-    marginRight: 16,
-  },
-  countryInfo: {
-    flex: 1,
-  },
-  countryName: {
-    color: Colors.textPrimary,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  countryNameSelected: {
-    color: Colors.accentPrimary,
-  },
-  lifeExpectancyText: {
-    color: Colors.textSecondary,
-    fontSize: 14,
-    marginTop: 2,
-  },
-  selectedIndicator: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: Colors.accentPrimary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkmark: {
-    color: Colors.background,
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  dateButton: {
-    backgroundColor: Colors.inputBackground,
-    padding: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: Colors.surfaceSecondary,
-  },
-  manualDateText: {
-    color: Colors.textPrimary,
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  dateHint: {
-    color: Colors.textSecondary,
-    fontSize: 14,
-  },
-  selectionSummary: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: Colors.surfaceSecondary,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  summaryText: {
-    color: Colors.accentPrimary,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  saveButton: {
-    marginTop: 20,
+    backgroundColor: Colors.background,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
   },
 });
