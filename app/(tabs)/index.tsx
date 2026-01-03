@@ -1,12 +1,16 @@
+import { NotificationPrompt } from "@/src/components/notification-promt";
 import { ProgressBar } from "@/src/components/ui/progress-bar";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { LifeTable } from "@/src/features/life-table/components/life-table";
+
 import { useLoadingStore } from "@/src/store/loading-store";
 import { useUserStore } from "@/src/store/user-store";
 import { calculateLifePercentage } from "@/src/utils/user-stats";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Modal,
@@ -19,12 +23,47 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const PROMPT_STORAGE_KEY = "@notification_prompt_dismissed";
+const PROMPT_COOLDOWN_DAYS = 7;
+
 export default function HomeScreen() {
   const { user } = useUserStore();
   const { setGlobalLoading } = useLoadingStore();
+  const router = useRouter();
   const hasInitialized = useRef(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
+
+  useEffect(() => {
+    const checkPromptVisibility = async () => {
+      try {
+        const dismissedData = await AsyncStorage.getItem(PROMPT_STORAGE_KEY);
+
+        if (!dismissedData) {
+          return;
+        }
+
+        const { timestamp } = JSON.parse(dismissedData);
+        const daysSinceDismissed =
+          (Date.now() - timestamp) / (1000 * 60 * 60 * 24);
+
+        if (daysSinceDismissed >= PROMPT_COOLDOWN_DAYS) {
+          setShowNotificationPrompt(false);
+        }
+      } catch (error) {
+        console.error("Error checking prompt visibility:", error);
+      }
+    };
+
+    if (isImageLoaded) {
+      checkPromptVisibility();
+
+      setTimeout(() => {
+        setShowNotificationPrompt(true);
+      }, 800);
+    }
+  }, [isImageLoaded]);
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -42,6 +81,24 @@ export default function HomeScreen() {
     },
     [setGlobalLoading]
   );
+
+  const handleSetReminders = useCallback(() => {
+    setShowNotificationPrompt(false);
+
+    router.push("/notifications");
+  }, [router]);
+
+  const handleDismissPrompt = useCallback(async () => {
+    try {
+      await AsyncStorage.setItem(
+        PROMPT_STORAGE_KEY,
+        JSON.stringify({ timestamp: Date.now() })
+      );
+      setShowNotificationPrompt(false);
+    } catch (error) {
+      console.error("Error saving prompt dismissal:", error);
+    }
+  }, []);
 
   if (!user) return null;
 
@@ -110,6 +167,13 @@ export default function HomeScreen() {
               )}
             </Pressable>
           </View>
+
+          {showNotificationPrompt && isImageLoaded && (
+            <NotificationPrompt
+              onSetReminders={handleSetReminders}
+              onDismiss={handleDismissPrompt}
+            />
+          )}
         </ScrollView>
       </SafeAreaView>
 
@@ -190,7 +254,7 @@ const styles = StyleSheet.create({
   lifeTableSection: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   tableWrapper: {
     borderRadius: 20,
@@ -200,7 +264,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     minHeight: 300,
     position: "relative",
-
     shadowColor: Colors.background,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,

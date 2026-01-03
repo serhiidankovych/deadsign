@@ -1,12 +1,12 @@
-import { Colors } from "@/src/constants/colors";
-import { calculateAge } from "@/src/utils/user-stats";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { RelativePathString, router } from "expo-router";
 import React, { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { DateInputCard } from "@/src/components/date-input-card";
+import { Colors } from "@/src/constants/colors";
+import { calculateAge } from "@/src/utils/user-stats";
 import { Button } from "../../src/components/ui/button";
-import { Card } from "../../src/components/ui/card";
 import { Text } from "../../src/components/ui/text";
 import { useOnboardingStore } from "../../src/features/onboarding/store/onboarding-store";
 
@@ -15,12 +15,9 @@ export default function DateOfBirthScreen() {
   const [dateOfBirth, setDateOfBirth] = useState(
     onboardingData.dateOfBirth || new Date()
   );
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleContinue = () => {
-    updateOnboardingData({
-      dateOfBirth,
-    });
+    updateOnboardingData({ dateOfBirth });
     router.push("/onboarding/life-expectancy" as RelativePathString);
   };
 
@@ -37,43 +34,13 @@ export default function DateOfBirthScreen() {
             </Text>
           </View>
 
-          <Card style={styles.section}>
-            <Text variant="body" style={styles.sectionLabel}>
-              Date of Birth
-            </Text>
-            <Pressable
-              style={styles.dateButton}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text style={styles.dateText}>
-                {dateOfBirth.toLocaleDateString()}
-              </Text>
-              <Text style={styles.dateHint}>Tap to change</Text>
-            </Pressable>
-
-            {dateOfBirth && (
-              <View style={styles.ageDisplay}>
-                <Text style={styles.ageText}>
-                  You are {calculateAge(dateOfBirth)} years old
-                </Text>
-              </View>
-            )}
-          </Card>
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={dateOfBirth}
-              mode="date"
-              display="default"
-              maximumDate={new Date()}
-              onChange={(event, selectedDate) => {
-                setShowDatePicker(false);
-                if (selectedDate) {
-                  setDateOfBirth(selectedDate);
-                }
-              }}
-            />
-          )}
+          <DateInputCard
+            label="Date of Birth"
+            date={dateOfBirth}
+            onDateChange={setDateOfBirth}
+            maximumDate={new Date()}
+            infoText={`Age: ${calculateAge(dateOfBirth)}`}
+          />
 
           <View style={styles.spacer} />
         </View>
@@ -123,45 +90,6 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 24,
-    padding: 20,
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-  },
-  sectionLabel: {
-    color: Colors.textPrimary,
-    marginBottom: 12,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  dateButton: {
-    backgroundColor: Colors.inputBackground,
-    padding: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
-  },
-  dateText: {
-    color: Colors.textPrimary,
-    fontSize: 24,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  dateHint: {
-    color: Colors.textMuted,
-    fontSize: 14,
-  },
-  ageDisplay: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: Colors.surfaceSecondary,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  ageText: {
-    color: Colors.accentPrimary,
-    fontSize: 18,
-    fontWeight: "600",
   },
   spacer: {
     height: 20,

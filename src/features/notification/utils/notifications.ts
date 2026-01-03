@@ -3,19 +3,18 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
-export type NotificationContentType = "stats" | "motivation" | "both";
+export type NotificationContentType =
+  | "weeksLived"
+  | "weeksRemaining"
+  | "ageProgress"
+  | "motivation"
+  | "none";
 
 export interface UserStats {
   weeksLived: number;
   totalWeeks: number;
   currentAge: number;
   percentageComplete?: number;
-}
-
-export interface NotificationDataPayload extends Record<string, unknown> {
-  type?: string;
-  notificationType?: NotificationContentType;
-  stats?: UserStats;
 }
 
 Notifications.setNotificationHandler({
@@ -52,67 +51,42 @@ export function getRandomQuote(): string {
 }
 
 export function generateNotificationContent(
-  type: NotificationContentType,
-  stats?: UserStats,
-  includeWeeksLived: boolean = true,
-  includeTotalWeeks: boolean = true,
-  includeAgeProgress: boolean = true
+  selectedContent: NotificationContentType,
+  stats: UserStats | undefined,
+  customTitle: string,
+  customBody: string
 ): { title: string; body: string } {
-  const quote = getRandomQuote();
+  const finalTitle = customTitle.trim() || "Life Reframed";
+  let contentSuffix = "";
 
-  if (type === "motivation") {
-    return {
-      title: "💪 Daily Motivation",
-      body: quote,
-    };
+  if (selectedContent === "motivation") {
+    contentSuffix = getRandomQuote();
+  } else if (stats) {
+    if (selectedContent === "weeksLived") {
+      contentSuffix = `📊 You have lived ${stats.weeksLived.toLocaleString()} weeks.`;
+    } else if (selectedContent === "weeksRemaining") {
+      const remaining = stats.totalWeeks - stats.weeksLived;
+      contentSuffix = `⏳ ${remaining.toLocaleString()} weeks remaining in your journey.`;
+    } else if (
+      selectedContent === "ageProgress" &&
+      stats.percentageComplete !== undefined
+    ) {
+      contentSuffix = `📈 Life progress: ${stats.percentageComplete.toFixed(
+        1
+      )}% complete.`;
+    }
   }
 
-  if (type === "stats" && stats) {
-    const statsLines: string[] = [];
-
-    if (includeWeeksLived) {
-      statsLines.push(`📊 Weeks lived: ${stats.weeksLived.toLocaleString()}`);
-    }
-
-    if (includeTotalWeeks) {
-      const weeksRemaining = stats.totalWeeks - stats.weeksLived;
-      statsLines.push(`⏳ Weeks remaining: ${weeksRemaining.toLocaleString()}`);
-    }
-
-    if (includeAgeProgress && stats.percentageComplete !== undefined) {
-      statsLines.push(
-        `📈 Life progress: ${stats.percentageComplete.toFixed(1)}%`
-      );
-    }
-
-    return {
-      title: `🎯 Your Life Stats (Age ${stats.currentAge})`,
-      body: statsLines.join("\n"),
-    };
-  }
-
-  if (type === "both" && stats) {
-    const statsLines: string[] = [];
-
-    if (includeWeeksLived) {
-      statsLines.push(`Weeks lived: ${stats.weeksLived.toLocaleString()}`);
-    }
-
-    if (includeAgeProgress && stats.percentageComplete !== undefined) {
-      statsLines.push(`Progress: ${stats.percentageComplete.toFixed(1)}%`);
-    }
-
-    const statsText = statsLines.join(" • ");
-
-    return {
-      title: "💪 Daily Reminder",
-      body: `${statsText}\n\n${quote}`,
-    };
-  }
+  const userBody = customBody.trim();
+  const bodyParts = [userBody, contentSuffix].filter(Boolean);
+  const finalBody =
+    bodyParts.length > 0
+      ? "\n" + bodyParts.join("\n")
+      : "\nTake a moment to reflect on your journey today.";
 
   return {
-    title: "💪 Daily Reminder",
-    body: "Time for your daily motivation! Keep pushing forward.",
+    title: finalTitle,
+    body: finalBody,
   };
 }
 
@@ -120,7 +94,6 @@ export async function registerForPushNotificationsAsync(): Promise<
   string | undefined
 > {
   let token: string | undefined;
-
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("daily-reminders", {
       name: "Daily Reminders",
@@ -130,74 +103,37 @@ export async function registerForPushNotificationsAsync(): Promise<
       sound: "default",
     });
   }
-
   if (Device.isDevice) {
     const { status: existingStatus } =
       await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
-
     if (existingStatus !== "granted") {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
-
-    if (finalStatus !== "granted") {
-      console.warn("Failed to get push notification permissions");
-      return;
-    }
-
+    if (finalStatus !== "granted") return;
     try {
       const projectId =
         Constants?.expoConfig?.extra?.eas?.projectId ??
         Constants?.easConfig?.projectId;
-
-      if (!projectId) {
-        console.warn("Project ID not found for push notifications");
-        return;
+      if (projectId) {
+        token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
       }
-
-      token = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
-
-      console.log("📱 Expo Push Token:", token);
-    } catch (e: unknown) {
+    } catch (e) {
       console.error("Error getting push token:", e);
     }
-  } else {
-    console.warn("Must use physical device for Push Notifications");
   }
-
   return token;
-}
-
-export async function sendLocalNotification(
-  title: string,
-  body: string,
-  data: Record<string, unknown> = {}
-): Promise<string> {
-  return await Notifications.scheduleNotificationAsync({
-    content: {
-      title,
-      body,
-      data,
-      sound: "default",
-    },
-    trigger: null,
-  });
 }
 
 export async function scheduleDailyReminder(
   hour: number,
   minute: number,
-  notificationType: NotificationContentType = "both",
-  stats?: UserStats,
-  includeWeeksLived: boolean = true,
-  includeTotalWeeks: boolean = true,
-  includeAgeProgress: boolean = true,
-  identifier?: string
+  selectedContent: NotificationContentType,
+  stats: UserStats | undefined,
+  identifier: string,
+  customTitle: string,
+  customBody: string
 ): Promise<string> {
   const trigger: Notifications.DailyTriggerInput = {
     type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -206,60 +142,31 @@ export async function scheduleDailyReminder(
   };
 
   const { title, body } = generateNotificationContent(
-    notificationType,
+    selectedContent,
     stats,
-    includeWeeksLived,
-    includeTotalWeeks,
-    includeAgeProgress
+    customTitle,
+    customBody
   );
-
-  const dataPayload: NotificationDataPayload = {
-    type: identifier || "daily_reminder",
-    notificationType,
-    stats,
-  };
 
   const notificationId = await Notifications.scheduleNotificationAsync({
     content: {
       title,
       body,
-      data: dataPayload,
+      data: {
+        type: identifier || "custom_reminder",
+        contentId: selectedContent,
+      },
       sound: "default",
-      ...(Platform.OS === "android" && {
-        channelId: "daily-reminders",
-      }),
+      ...(Platform.OS === "android" && { channelId: "daily-reminders" }),
     },
     trigger,
   });
 
-  console.log(
-    `✅ ${notificationType} reminder scheduled for ${hour}:${minute} - ID: ${notificationId}`
-  );
   return notificationId;
-}
-
-export async function cancelDailyReminders(): Promise<void> {
-  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-
-  for (const notification of scheduled) {
-    const data = notification.content.data as NotificationDataPayload | null;
-    const dataType = data?.type;
-
-    if (
-      dataType === "daily_reminder" ||
-      dataType === "stats_reminder" ||
-      dataType === "motivation_reminder"
-    ) {
-      await Notifications.cancelScheduledNotificationAsync(
-        notification.identifier
-      );
-    }
-  }
 }
 
 export async function cancelAllNotifications(): Promise<void> {
   await Notifications.cancelAllScheduledNotificationsAsync();
-  console.log("🗑️ All notifications cancelled");
 }
 
 export async function getScheduledNotifications(): Promise<

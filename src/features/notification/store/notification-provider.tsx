@@ -7,7 +7,6 @@ import {
   UserStats,
 } from "@/src/features/notification/utils/notifications";
 import { useUserStore } from "@/src/store/user-store";
-
 import * as Notifications from "expo-notifications";
 import React, { createContext, useContext, useEffect, useRef } from "react";
 
@@ -46,110 +45,70 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   useEffect(() => {
     const setupPermissions = async () => {
       const { status } = await Notifications.getPermissionsAsync();
-      console.log("Current permission status:", status);
-
       if (status !== "granted") {
-        const { status: newStatus } =
-          await Notifications.requestPermissionsAsync();
-        console.log("Permission request result:", newStatus);
-
-        if (newStatus !== "granted") {
-          console.warn("⚠️ Notification permissions denied by user");
-        }
+        await Notifications.requestPermissionsAsync();
       }
     };
-
     setupPermissions();
   }, []);
 
   useEffect(() => {
     notificationListener.current = addNotificationReceivedListener(
       (notification) => {
-        console.log("📬 Notification received:", notification);
         setLastNotification(notification);
       }
     );
 
     responseListener.current = addNotificationResponseReceivedListener(
       (response) => {
-        console.log("👆 Notification tapped:", response);
         setLastNotificationResponse(response);
-
-        const notificationType =
-          response.notification.request.content.data?.type;
-
-        if (
-          notificationType === "stats_reminder" ||
-          notificationType === "motivation_reminder"
-        ) {
-          console.log(`${notificationType} tapped - you can navigate here`);
-        }
       }
     );
 
     return () => {
-      if (notificationListener.current) {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
-      }
+      notificationListener.current?.remove();
+      responseListener.current?.remove();
     };
   }, []);
 
   useEffect(() => {
-    if (
-      !settings.enabled ||
-      !settings.statsReminderTime ||
-      !settings.motivationReminderTime
-    ) {
-      return;
-    }
-
     const scheduleReminders = async () => {
       try {
         await cancelAllNotifications();
 
+        if (!settings.enabled || !settings.customNotifications) {
+          return;
+        }
+
         let stats: UserStats | undefined;
         if (user) {
-          const percentageComplete = (user.weeksLived / user.totalWeeks) * 100;
           stats = {
             weeksLived: user.weeksLived,
             totalWeeks: user.totalWeeks,
             currentAge: user.currentAge,
-            percentageComplete,
+            percentageComplete: (user.weeksLived / user.totalWeeks) * 100,
           };
         }
 
-        if (settings.statsReminderEnabled && stats) {
-          const id = await scheduleDailyReminder(
-            settings.statsReminderTime.hour,
-            settings.statsReminderTime.minute,
-            "stats",
+        const activeNotifications = settings.customNotifications.filter(
+          (n) => n.enabled
+        );
+
+        for (const notif of activeNotifications) {
+          await scheduleDailyReminder(
+            notif.time.hour,
+            notif.time.minute,
+            notif.selectedContent || "none",
             stats,
-            settings.includeWeeksLived,
-            false,
-            settings.includeAgeProgress,
-            "stats_reminder"
+            notif.id,
+            notif.title,
+            notif.bodyText
           );
-          console.log("📊 Stats reminder scheduled:", id);
         }
 
-        if (settings.motivationReminderEnabled) {
-          const id = await scheduleDailyReminder(
-            settings.motivationReminderTime.hour,
-            settings.motivationReminderTime.minute,
-            "motivation",
-            undefined,
-            false,
-            false,
-            false,
-            "motivation_reminder"
-          );
-          console.log("💪 Motivation reminder scheduled:", id);
-        }
-
-        console.log("✅ All notifications scheduled successfully");
+        console.log(
+          `✅ ${activeNotifications.length} custom notifications scheduled`
+        );
       } catch (error) {
         console.error("❌ Error scheduling reminders:", error);
       }
@@ -158,14 +117,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     scheduleReminders();
   }, [
     settings.enabled,
-    settings.statsReminderEnabled,
-    settings.statsReminderTime?.hour,
-    settings.statsReminderTime?.minute,
-    settings.motivationReminderEnabled,
-    settings.motivationReminderTime?.hour,
-    settings.motivationReminderTime?.minute,
-    settings.includeWeeksLived,
-    settings.includeAgeProgress,
+    settings.customNotifications,
     user?.weeksLived,
     user?.totalWeeks,
     user?.currentAge,
