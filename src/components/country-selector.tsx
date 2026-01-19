@@ -66,7 +66,7 @@ const CountryItem = React.memo(
         />
       )}
     </Pressable>
-  )
+  ),
 );
 
 CountryItem.displayName = "CountryItem";
@@ -91,7 +91,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
     return countries.filter(
       (c) =>
         c.countryName.toLowerCase().includes(query) ||
-        c.countryCode.toLowerCase().includes(query)
+        c.countryCode.toLowerCase().includes(query),
     );
   }, [countries, searchQuery]);
 
@@ -103,7 +103,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
         onSelect={onCountrySelect}
       />
     ),
-    [selectedCountry, onCountrySelect]
+    [selectedCountry, onCountrySelect],
   );
 
   return (

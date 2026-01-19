@@ -32,7 +32,6 @@ export function DateInputCard({
         <Text variant="body" style={styles.sectionLabel}>
           {label}
         </Text>
-        {infoText && <Text style={styles.infoText}>{infoText}</Text>}
       </View>
 
       <Pressable
@@ -58,6 +57,7 @@ export function DateInputCard({
           }}
         />
       )}
+      {infoText && <Text style={styles.infoText}>{infoText}</Text>}
     </Card>
   );
 }
@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
     color: Colors.accentPrimary,
     fontSize: 14,
     fontWeight: "600",
+    marginTop: 8,
   },
   dateInputButton: {
     backgroundColor: Colors.inputBackground,
