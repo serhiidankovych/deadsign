@@ -1,14 +1,3 @@
-import { countries } from "../data/countries";
-
-export function calculateLifeExpectancy(
-  dateOfBirth: Date,
-  countryName: string
-): number {
-  const country = countries.find((c) => c.name === countryName);
-
-  return country?.lifeExpectancy ?? 75;
-}
-
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const DAYS_PER_YEAR = 365.25;
 const WEEKS_PER_YEAR = 52;
@@ -24,14 +13,14 @@ export const calculateWeeksLived = (dateOfBirth: Date): number => {
 };
 
 export const calculateTotalWeeksInLife = (
-  lifeExpectancyInYears: number
+  lifeExpectancyInYears: number,
 ): number => {
   return lifeExpectancyInYears * WEEKS_PER_YEAR;
 };
 
 export const calculateLifePercentage = (
   weeksLived: number,
-  totalWeeks: number
+  totalWeeks: number,
 ): number => {
   if (totalWeeks === 0) return 0;
   return (weeksLived / totalWeeks) * 100;
