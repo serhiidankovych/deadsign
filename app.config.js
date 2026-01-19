@@ -1,24 +1,24 @@
 export default ({ config, eas }) => {
   const profile = eas?.profile ?? "production";
 
-  // Logic to determine the bundle identifier (Package Name)
+  
   const androidPackage =
     profile === "development"
       ? "com.deadsign.lifeplanner.dev"
       : profile === "preview"
       ? "com.deadsign.lifeplanner.preview"
       : profile === "production-apk"
-      ? "com.deadsign.lifeplanner.apk" // Unique ID for the APK build
+      ? "com.deadsign.lifeplanner.apk" 
       : "com.deadsign.lifeplanner";
 
-  // Logic to determine the App Name on the home screen
+  
   const appName =
     profile === "development"
       ? "LifePlanner Dev"
       : profile === "preview"
       ? "LifePlanner Preview"
       : profile === "production-apk"
-      ? "LifePlanner APK" // Distinct name for the APK build
+      ? "LifePlanner APK" 
       : "LifePlanner";
 
   return {
@@ -60,8 +60,8 @@ export default ({ config, eas }) => {
           "expo-build-properties",
           {
             android: {
-              // enableProguardInReleaseBuilds: true,
-              // enableShrinkResourcesInReleaseBuilds: true,
+              
+              
               useLegacyPackaging: true,
             },
             ios: {

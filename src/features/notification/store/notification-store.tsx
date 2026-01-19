@@ -1,8 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 export type NotificationContent =
   | "weeksLived"
   | "weeksRemaining"
@@ -27,39 +29,79 @@ export interface NotificationSettings {
   enabled: boolean;
   pushToken?: string;
   customNotifications: CustomNotification[];
+  permissionStatus?: "granted" | "denied" | "undetermined";
 }
 
 interface NotificationStore {
   settings: NotificationSettings;
-  setEnabled: (enabled: boolean) => void;
+  setEnabled: (enabled: boolean) => Promise<boolean>;
   setPushToken: (token?: string) => void;
   addCustomNotification: (notification: Omit<CustomNotification, "id">) => void;
   updateCustomNotification: (
     id: string,
-    notification: Partial<CustomNotification>
+    notification: Partial<CustomNotification>,
   ) => void;
   deleteCustomNotification: (id: string) => void;
-  resetSettings: () => void;
+  resetSettings: () => Promise<void>;
+  checkPermissionStatus: () => Promise<void>;
 }
 
 const defaultSettings: NotificationSettings = {
   enabled: false,
   pushToken: undefined,
   customNotifications: [],
+  permissionStatus: "undetermined",
 };
 
 export const useNotificationStore = create<NotificationStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       settings: defaultSettings,
-      setEnabled: (enabled) =>
-        set((state) => ({
-          settings: { ...state.settings, enabled },
-        })),
+
+      setEnabled: async (enabled) => {
+        if (enabled) {
+          const { status: existingStatus } =
+            await Notifications.getPermissionsAsync();
+
+          let finalStatus = existingStatus;
+
+          if (existingStatus !== "granted") {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+
+          if (finalStatus !== "granted") {
+            set((state) => ({
+              settings: {
+                ...state.settings,
+                enabled: false,
+                permissionStatus: "denied",
+              },
+            }));
+            return false;
+          }
+
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              enabled: true,
+              permissionStatus: "granted",
+            },
+          }));
+          return true;
+        } else {
+          set((state) => ({
+            settings: { ...state.settings, enabled: false },
+          }));
+          return true;
+        }
+      },
+
       setPushToken: (token) =>
         set((state) => ({
           settings: { ...state.settings, pushToken: token },
         })),
+
       addCustomNotification: (notification) =>
         set((state) => ({
           settings: {
@@ -75,15 +117,17 @@ export const useNotificationStore = create<NotificationStore>()(
             ],
           },
         })),
+
       updateCustomNotification: (id, updates) =>
         set((state) => ({
           settings: {
             ...state.settings,
             customNotifications: (state.settings.customNotifications || []).map(
-              (notif) => (notif.id === id ? { ...notif, ...updates } : notif)
+              (notif) => (notif.id === id ? { ...notif, ...updates } : notif),
             ),
           },
         })),
+
       deleteCustomNotification: (id) =>
         set((state) => ({
           settings: {
@@ -93,7 +137,23 @@ export const useNotificationStore = create<NotificationStore>()(
             ).filter((notif) => notif.id !== id),
           },
         })),
-      resetSettings: () => set({ settings: defaultSettings }),
+
+      resetSettings: async () => {
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        set({ settings: defaultSettings });
+      },
+
+      checkPermissionStatus: async () => {
+        const { status } = await Notifications.getPermissionsAsync();
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            permissionStatus: status,
+
+            enabled: status === "granted" ? state.settings.enabled : false,
+          },
+        }));
+      },
     }),
     {
       name: "notification-storage",
@@ -108,6 +168,6 @@ export const useNotificationStore = create<NotificationStore>()(
             persistedState?.settings?.customNotifications || [],
         },
       }),
-    }
-  )
+    },
+  ),
 );

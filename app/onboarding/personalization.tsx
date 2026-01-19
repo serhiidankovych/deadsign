@@ -1,28 +1,16 @@
-import { useOnboardingStore } from "@/src/features/onboarding/store/onboarding-store";
-import { LinearGradient } from "expo-linear-gradient";
-import { RelativePathString, router } from "expo-router";
-
-import React, { useState } from "react";
-import {
-  ImageBackground,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  TextInput,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import { Button } from "@/src/components/ui/button";
+import { OnboardingLayout } from "@/src/components/layout/onboarding-layout";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
+import { useOnboardingStore } from "@/src/features/onboarding/store/onboarding-store";
+import { RelativePathString, router } from "expo-router";
+import React, { useState } from "react";
+import { Animated, StyleSheet, TextInput, View } from "react-native";
 
 export default function PersonalizationScreen() {
   const { onboardingData, updateOnboardingData } = useOnboardingStore();
   const [name, setName] = useState(onboardingData.name || "");
-  const insets = useSafeAreaInsets();
+
+  const borderAnim = React.useRef(new Animated.Value(0)).current;
 
   const handleContinue = () => {
     if (name.trim()) {
@@ -31,148 +19,108 @@ export default function PersonalizationScreen() {
     }
   };
 
+  const handleSkip = () => {
+    updateOnboardingData({ name: "" });
+    router.push("/onboarding/final" as RelativePathString);
+  };
+
+  const borderColor = borderAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["rgba(255, 255, 255, 0.1)", Colors.accentPrimary],
+  });
+
   return (
-    <ImageBackground
-      source={require("../../assets/images/intro-background.png")}
-      style={styles.backgroundImage}
-      resizeMode="cover"
+    <OnboardingLayout
+      backgroundImage={require("../../assets/images/backgroud-bottom.png")}
+      title="What's Your Name?"
+      subtitle="We'll personalize your experience"
+      onNext={handleContinue}
+      nextDisabled={!name.trim()}
+      showSkip={true}
+      onSkip={handleSkip}
+      currentStep={5}
+      totalSteps={6}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View
-          style={[
-            styles.container,
-            {
-              paddingTop: insets.top,
-            },
-          ]}
-        >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1 }}
-            keyboardVerticalOffset={0}
-          >
-            {/* HEADER CONTENT */}
-            <View style={styles.content}>
-              <View style={styles.header}>
-                <Text variant="title" style={styles.title}>
-                  What&apos;s your name?
-                </Text>
-
-                <Text variant="subtitle" style={styles.subtitle}>
-                  We personalize your journey starting from this little spark.
-                </Text>
-              </View>
-            </View>
-
-            {/* FOOTER WITH INPUT + BUTTON */}
-            <View style={styles.footer}>
-              <LinearGradient
-                colors={["transparent", "rgba(0,0,0,0.7)", Colors.background]}
-                style={styles.gradient}
-              />
-
-              <View
-                style={[
-                  styles.inputButtonContainer,
-                  {
-                    paddingBottom: insets.bottom + 20,
-                  },
-                ]}
-              >
-                <TextInput
-                  style={styles.input}
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Enter your name"
-                  placeholderTextColor={Colors.textMuted}
-                  autoCapitalize="words"
-                  autoComplete="name"
-                  returnKeyType="done"
-                  onSubmitEditing={handleContinue}
-                />
-
-                <Button onPress={handleContinue} disabled={!name.trim()}>
-                  Continue
-                </Button>
-              </View>
-            </View>
-          </KeyboardAvoidingView>
-        </View>
-      </TouchableWithoutFeedback>
-    </ImageBackground>
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Your Name</Text>
+        <Animated.View style={[styles.inputWrapper, { borderColor }]}>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder="Enter your name"
+            placeholderTextColor={Colors.textMuted}
+            autoCapitalize="words"
+            autoComplete="name"
+            returnKeyType="done"
+            onSubmitEditing={handleContinue}
+            autoFocus
+          />
+        </Animated.View>
+      </View>
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
+  inputContainer: {
+    marginTop: 8,
   },
-  container: {
-    flex: 1,
-    backgroundColor: "transparent",
-  },
-
-  /** CONTENT AREA */
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: "center",
-  },
-
-  header: {
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  title: {
-    color: Colors.textPrimary,
-    fontSize: 32,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 12,
-  },
-  subtitle: {
+  inputLabel: {
+    fontSize: 15,
     color: Colors.textSecondary,
-    textAlign: "center",
-    fontSize: 18,
-    lineHeight: 24,
-    opacity: 0.9,
-    maxWidth: 320,
+    marginBottom: 12,
+    fontWeight: "500",
   },
-
-  footer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  gradient: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 280,
-  },
-  inputButtonContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: Colors.background,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: Colors.surfaceSecondary,
-    gap: 12,
+  inputWrapper: {
+    borderWidth: 2,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
   input: {
-    backgroundColor: Colors.inputBackground,
-    padding: 16,
-    borderRadius: 12,
+    padding: 18,
     color: Colors.textPrimary,
-    fontSize: 16,
+    fontSize: 17,
+    fontWeight: "500",
+  },
+  preview: {
+    marginTop: 12,
+    fontSize: 14,
+    color: Colors.accentPrimary,
+    textAlign: "center",
+  },
+  benefitsBox: {
+    marginTop: 32,
+    padding: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.surfaceSecondary,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+  },
+  benefitsTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: Colors.textPrimary,
+    marginBottom: 12,
+  },
+  benefitsList: {
+    gap: 8,
+  },
+  benefitItem: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+  },
+  privacyNote: {
+    marginTop: 20,
+    padding: 14,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderRadius: 8,
+  },
+  privacyText: {
+    fontSize: 13,
+    color: Colors.textMuted,
+    textAlign: "center",
+    lineHeight: 18,
   },
 });

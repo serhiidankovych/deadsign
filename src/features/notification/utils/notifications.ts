@@ -54,35 +54,42 @@ export function generateNotificationContent(
   selectedContent: NotificationContentType,
   stats: UserStats | undefined,
   customTitle: string,
-  customBody: string
+  customBody: string,
 ): { title: string; body: string } {
   const finalTitle = customTitle.trim() || "Life Reframed";
-  let contentSuffix = "";
+  const bodyParts: string[] = [];
+
+  const userBody = customBody.trim();
+  if (userBody) {
+    bodyParts.push(userBody);
+  }
 
   if (selectedContent === "motivation") {
-    contentSuffix = getRandomQuote();
-  } else if (stats) {
+    bodyParts.push(getRandomQuote());
+  } else if (stats && selectedContent) {
+    let contentText = "";
+
     if (selectedContent === "weeksLived") {
-      contentSuffix = `📊 You have lived ${stats.weeksLived.toLocaleString()} weeks.`;
+      contentText = `📊 You've lived ${stats.weeksLived.toLocaleString()} weeks`;
     } else if (selectedContent === "weeksRemaining") {
       const remaining = stats.totalWeeks - stats.weeksLived;
-      contentSuffix = `⏳ ${remaining.toLocaleString()} weeks remaining in your journey.`;
+      contentText = `⏳ ${remaining.toLocaleString()} weeks remaining`;
     } else if (
       selectedContent === "ageProgress" &&
       stats.percentageComplete !== undefined
     ) {
-      contentSuffix = `📈 Life progress: ${stats.percentageComplete.toFixed(
-        1
-      )}% complete.`;
+      contentText = `📈 Life progress: ${stats.percentageComplete.toFixed(1)}%`;
+    }
+
+    if (contentText) {
+      bodyParts.push(contentText);
     }
   }
 
-  const userBody = customBody.trim();
-  const bodyParts = [userBody, contentSuffix].filter(Boolean);
   const finalBody =
     bodyParts.length > 0
-      ? "\n" + bodyParts.join("\n")
-      : "\nTake a moment to reflect on your journey today.";
+      ? bodyParts.join("\n")
+      : "Take a moment to reflect on your journey today.";
 
   return {
     title: finalTitle,
@@ -133,7 +140,7 @@ export async function scheduleDailyReminder(
   stats: UserStats | undefined,
   identifier: string,
   customTitle: string,
-  customBody: string
+  customBody: string,
 ): Promise<string> {
   const trigger: Notifications.DailyTriggerInput = {
     type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -145,7 +152,7 @@ export async function scheduleDailyReminder(
     selectedContent,
     stats,
     customTitle,
-    customBody
+    customBody,
   );
 
   const notificationId = await Notifications.scheduleNotificationAsync({
@@ -155,9 +162,17 @@ export async function scheduleDailyReminder(
       data: {
         type: identifier || "custom_reminder",
         contentId: selectedContent,
+        customBody,
+        customTitle,
       },
       sound: "default",
-      ...(Platform.OS === "android" && { channelId: "daily-reminders" }),
+
+      ...(Platform.OS === "ios" && { subtitle: undefined }),
+      ...(Platform.OS === "android" && {
+        channelId: "daily-reminders",
+
+        priority: Notifications.AndroidNotificationPriority.HIGH,
+      }),
     },
     trigger,
   });
@@ -176,13 +191,13 @@ export async function getScheduledNotifications(): Promise<
 }
 
 export function addNotificationReceivedListener(
-  listener: (notification: Notifications.Notification) => void
+  listener: (notification: Notifications.Notification) => void,
 ): Notifications.EventSubscription {
   return Notifications.addNotificationReceivedListener(listener);
 }
 
 export function addNotificationResponseReceivedListener(
-  listener: (response: Notifications.NotificationResponse) => void
+  listener: (response: Notifications.NotificationResponse) => void,
 ): Notifications.EventSubscription {
   return Notifications.addNotificationResponseReceivedListener(listener);
 }

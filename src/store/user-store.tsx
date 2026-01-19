@@ -8,6 +8,7 @@ import React, {
   useRef,
 } from "react";
 import { AppState } from "react-native";
+import { clearOnboardingDataDirectly } from "../features/onboarding/store/onboarding-store";
 
 interface User {
   name: string;
@@ -50,10 +51,10 @@ const recalculateLiveUserData = (user: User): User => {
   const dob = new Date(user.dateOfBirth);
 
   const currentAge = Math.floor(
-    (now.getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+    (now.getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000),
   );
   const weeksLived = Math.floor(
-    (now.getTime() - dob.getTime()) / (7 * 24 * 60 * 60 * 1000)
+    (now.getTime() - dob.getTime()) / (7 * 24 * 60 * 60 * 1000),
   );
 
   return { ...user, currentAge, weeksLived };
@@ -129,7 +130,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const subscription = AppState.addEventListener(
       "change",
-      handleAppStateChange
+      handleAppStateChange,
     );
 
     return () => {
@@ -180,7 +181,7 @@ export const useUserStore = () => {
   const { state, dispatch } = context;
 
   const setUser = async (
-    userData: Omit<User, "currentAge" | "weeksLived" | "totalWeeks">
+    userData: Omit<User, "currentAge" | "weeksLived" | "totalWeeks">,
   ) => {
     const CACHE_FILE = new File(Paths.document, "life_table_cache.png");
     try {
@@ -210,17 +211,30 @@ export const useUserStore = () => {
   };
 
   const clearUser = async () => {
-    await AsyncStorage.removeItem("user_data");
-    const CACHE_FILE = new File(Paths.document, "life_table_cache.png");
     try {
+      await AsyncStorage.removeItem("user_data");
+
+      const CACHE_FILE = new File(Paths.document, "life_table_cache.png");
       if (await CACHE_FILE.exists) {
         await CACHE_FILE.delete();
       }
       await AsyncStorage.removeItem(CACHE_TIMESTAMP_KEY);
+
+      const { useNotificationStore } =
+        await import("@/src/features/notification/store/notification-store");
+      const { resetSettings } = useNotificationStore.getState();
+      await resetSettings();
+
+      await clearOnboardingDataDirectly();
+
+      dispatch({ type: "CLEAR_USER" });
+
+      console.log("✅ All data cleared successfully");
     } catch (error) {
-      console.error("Error clearing LifeTable cache:", error);
+      console.error("❌ Error clearing user data:", error);
+
+      dispatch({ type: "CLEAR_USER" });
     }
-    dispatch({ type: "CLEAR_USER" });
   };
 
   return {
