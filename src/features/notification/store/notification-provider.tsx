@@ -27,7 +27,7 @@ interface NotificationProviderProps {
 }
 
 export function NotificationProvider({ children }: NotificationProviderProps) {
-  const { settings } = useNotificationStore();
+  const { settings, checkPermissionStatus } = useNotificationStore();
   const { user } = useUserStore();
 
   const [lastNotification, setLastNotification] =
@@ -39,30 +39,37 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     Notifications.EventSubscription | undefined
   >(undefined);
   const responseListener = useRef<Notifications.EventSubscription | undefined>(
-    undefined
+    undefined,
   );
 
+  const schedulingInProgress = useRef(false);
+  const lastScheduledHash = useRef<string>("");
+
   useEffect(() => {
-    const setupPermissions = async () => {
-      const { status } = await Notifications.getPermissionsAsync();
-      if (status !== "granted") {
-        await Notifications.requestPermissionsAsync();
-      }
+    checkPermissionStatus();
+
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      () => {
+        checkPermissionStatus();
+      },
+    );
+
+    return () => {
+      subscription.remove();
     };
-    setupPermissions();
-  }, []);
+  }, [checkPermissionStatus]);
 
   useEffect(() => {
     notificationListener.current = addNotificationReceivedListener(
       (notification) => {
         setLastNotification(notification);
-      }
+      },
     );
 
     responseListener.current = addNotificationResponseReceivedListener(
       (response) => {
         setLastNotificationResponse(response);
-      }
+      },
     );
 
     return () => {
@@ -73,10 +80,52 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
 
   useEffect(() => {
     const scheduleReminders = async () => {
+      if (schedulingInProgress.current) {
+        console.log("⏳ Scheduling already in progress, skipping...");
+        return;
+      }
+
+      if (!settings.enabled) {
+        console.log("🔕 Notifications disabled");
+        return;
+      }
+
       try {
+        schedulingInProgress.current = true;
+
+        const { status } = await Notifications.getPermissionsAsync();
+        if (status !== "granted") {
+          console.log("⚠️ Notification permissions not granted");
+
+          await checkPermissionStatus();
+          return;
+        }
+
+        const currentHash = JSON.stringify({
+          enabled: settings.enabled,
+          notifications: settings.customNotifications?.map((n) => ({
+            id: n.id,
+            enabled: n.enabled,
+            time: n.time,
+            daysOfWeek: n.daysOfWeek,
+            content: n.selectedContent,
+            title: n.title,
+            body: n.bodyText,
+          })),
+          userWeeks: user?.weeksLived,
+        });
+
+        if (currentHash === lastScheduledHash.current) {
+          console.log("📋 No changes detected, skipping scheduling");
+          return;
+        }
+
+        lastScheduledHash.current = currentHash;
+
         await cancelAllNotifications();
 
-        if (!settings.enabled || !settings.customNotifications) {
+        if (!settings.customNotifications) {
+          console.log("🔕 No custom notifications");
           return;
         }
 
@@ -91,36 +140,44 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
         }
 
         const activeNotifications = settings.customNotifications.filter(
-          (n) => n.enabled
+          (n) => n.enabled,
         );
 
         for (const notif of activeNotifications) {
-          await scheduleDailyReminder(
+          const notificationId = await scheduleDailyReminder(
             notif.time.hour,
             notif.time.minute,
             notif.selectedContent || "none",
             stats,
             notif.id,
             notif.title,
-            notif.bodyText
+            notif.bodyText,
+          );
+
+          console.log(
+            `📅 Scheduled: "${notif.title}" at ${notif.time.hour}:${notif.time.minute} (ID: ${notificationId})`,
           );
         }
 
         console.log(
-          `✅ ${activeNotifications.length} custom notifications scheduled`
+          `✅ ${activeNotifications.length} custom notification(s) scheduled successfully`,
         );
       } catch (error) {
         console.error("❌ Error scheduling reminders:", error);
+      } finally {
+        schedulingInProgress.current = false;
       }
     };
 
-    scheduleReminders();
+    const timeoutId = setTimeout(scheduleReminders, 500);
+    return () => clearTimeout(timeoutId);
   }, [
     settings.enabled,
     settings.customNotifications,
     user?.weeksLived,
     user?.totalWeeks,
     user?.currentAge,
+    checkPermissionStatus,
   ]);
 
   const value: NotificationContextValue = {
