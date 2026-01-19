@@ -1,39 +1,88 @@
+import { Colors } from "@/src/constants/colors";
 import React from "react";
 import {
   Text as RNText,
   TextProps as RNTextProps,
-  StyleSheet,
+  TextStyle,
 } from "react-native";
 
+type TextVariant = "title" | "subtitle" | "body" | "caption" | "highlight";
+
+type TextColor =
+  | "primary"
+  | "secondary"
+  | "muted"
+  | "placeholder"
+  | "accent"
+  | "accentSecondary"
+  | "success"
+  | "warning"
+  | "error";
+
 interface TextProps extends RNTextProps {
-  variant?: "title" | "subtitle" | "body" | "caption";
+  variant?: TextVariant;
+  color?: TextColor;
 }
+
+const VARIANT_STYLES: Record<TextVariant, TextStyle> = {
+  title: {
+    fontSize: 30,
+    lineHeight: 38,
+    fontFamily: "Montserrat_700Bold",
+    letterSpacing: -0.5,
+  },
+
+  subtitle: {
+    fontSize: 20,
+    lineHeight: 28,
+    fontFamily: "ArchitectsDaughter_400Regular",
+    letterSpacing: 0.4,
+  },
+
+  body: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontFamily: "Montserrat_400Regular",
+    letterSpacing: 0.1,
+  },
+
+  caption: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: "Montserrat_400Regular",
+    letterSpacing: 0.3,
+  },
+
+  highlight: {
+    fontSize: 18,
+    lineHeight: 24,
+    fontFamily: "ArchitectsDaughter_400Regular",
+    letterSpacing: 0.6,
+  },
+};
+
+const COLOR_MAP: Record<TextColor, string> = {
+  primary: Colors.textPrimary,
+  secondary: Colors.textSecondary,
+  muted: Colors.textMuted,
+  placeholder: Colors.placeholder,
+  accent: Colors.accentPrimary,
+  accentSecondary: Colors.accentSecondary,
+  success: Colors.success,
+  warning: Colors.warning,
+  error: Colors.error,
+};
 
 export const Text: React.FC<TextProps> = ({
   variant = "body",
+  color = "primary",
   style,
   ...props
 }) => {
-  return <RNText style={[styles[variant], style]} {...props} />;
+  return (
+    <RNText
+      {...props}
+      style={[VARIANT_STYLES[variant], { color: COLOR_MAP[color] }, style]}
+    />
+  );
 };
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#FFF",
-  },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#FFF",
-  },
-  body: {
-    fontSize: 16,
-    color: "#FFF",
-  },
-  caption: {
-    fontSize: 14,
-    color: "#999",
-  },
-});
