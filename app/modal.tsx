@@ -51,7 +51,7 @@ export default function ModalScreen() {
     const lifeExpectancy = isManualMode
       ? Math.floor(
           (manualDeathDate.getTime() - dateOfBirth.getTime()) /
-            (1000 * 60 * 60 * 24 * 365.25)
+            (1000 * 60 * 60 * 24 * 365.25),
         )
       : countryLifeExpectancy;
 
@@ -67,7 +67,7 @@ export default function ModalScreen() {
   const calculateExpectedYears = () =>
     Math.floor(
       (manualDeathDate.getTime() - dateOfBirth.getTime()) /
-        (1000 * 60 * 60 * 24 * 365.25)
+        (1000 * 60 * 60 * 24 * 365.25),
     );
 
   const toggleManualMode = () => {
