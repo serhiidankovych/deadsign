@@ -1,145 +1,154 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { RelativePathString, router } from "expo-router";
-import React from "react";
-import { Image, ImageBackground, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import { OnboardingLayout } from "@/src/components/layout/onboarding-layout";
+import { Card } from "@/src/components/ui/card";
+import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
-import { Button } from "../../src/components/ui/button";
-import { Text } from "../../src/components/ui/text";
+import { Ionicons } from "@expo/vector-icons";
+import { RelativePathString, router } from "expo-router";
+import LottieView from "lottie-react-native";
+import React from "react";
+import { Animated, StyleSheet, View } from "react-native";
 
 export default function IntroScreen() {
-  const insets = useSafeAreaInsets();
+  const fadeAnims = React.useRef(
+    [0, 1, 2].map(() => new Animated.Value(0)),
+  ).current;
+
+  React.useEffect(() => {
+    Animated.stagger(
+      150,
+      fadeAnims.map((anim) =>
+        Animated.timing(anim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ),
+    ).start();
+  }, []);
+
+  const benefits = [
+    {
+      text: "Visualize your life in weeks",
+      icon: "calendar-outline" as const,
+    },
+    {
+      text: "Custom motivational notifications",
+      icon: "notifications-outline" as const,
+    },
+    {
+      text: "Set it up once, benefit forever",
+      icon: "infinite-outline" as const,
+    },
+  ];
 
   return (
-    <ImageBackground
-      source={require("../../assets/images/intro-background.png")}
-      style={styles.backgroundImage}
-      resizeMode="cover"
+    <OnboardingLayout
+      backgroundImage={require("../../assets/images/backgroud-intro.png")}
+      onNext={() =>
+        router.push("/onboarding/date-of-birth" as RelativePathString)
+      }
+      nextLabel="Get Started"
+      currentStep={1}
+      totalSteps={6}
+      scrollEnabled={true}
     >
-      <View
-        style={[
-          styles.container,
-          {
-            paddingTop: insets.top,
-          },
-        ]}
-      >
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Image
-              source={require("../../assets/images/deadsign.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            <Text variant="title" style={styles.title}>
-              Deadsign
-            </Text>
-            <Text variant="subtitle" style={styles.subtitle}>
-              The app for planning the most important thing —{" "}
-              <Text variant="body" style={styles.highlight}>
-                your life.{" "}
-              </Text>
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.footer}>
-          <LinearGradient
-            colors={["transparent", "rgba(14, 13, 13, 0.8)", Colors.background]}
-            style={styles.gradient}
-          />
-
-          <View
-            style={[
-              styles.buttonContainer,
-              {
-                paddingBottom: insets.bottom + 20,
-              },
-            ]}
-          >
-            <Button
-              onPress={() =>
-                router.push("/onboarding/date-of-birth" as RelativePathString)
-              }
-            >
-              Get Started
-            </Button>
-          </View>
-        </View>
+      <View style={styles.header}>
+        <LottieView
+          source={require("../../assets/images/deadsign-clip.json")}
+          autoPlay
+          loop
+          style={styles.lottie}
+        />
+        <Text variant="title" style={styles.titleText}>
+          Deadsign
+        </Text>
+        <Text variant="subtitle" style={styles.centerText}>
+          The app for planning the most important thing —{" "}
+          <Text variant="highlight" color="accent">
+            your life.
+          </Text>
+        </Text>
       </View>
-    </ImageBackground>
+
+      <View style={styles.benefitsContainer}>
+        {benefits.map((item, index) => (
+          <Animated.View key={index} style={{ opacity: fadeAnims[index] }}>
+            <Card style={styles.benefitCard}>
+              <View style={styles.benefitItem}>
+                <View style={styles.iconContainer}>
+                  <Ionicons
+                    name={item.icon}
+                    size={24}
+                    color={Colors.accentPrimary}
+                  />
+                </View>
+                <View style={styles.benefitTextContainer}>
+                  <Text variant="body" style={styles.benefitTitle}>
+                    {item.text}
+                  </Text>
+                </View>
+              </View>
+            </Card>
+          </Animated.View>
+        ))}
+      </View>
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "transparent",
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    paddingBottom: 120,
-  },
   header: {
     alignItems: "center",
-    paddingBottom: 20,
-    marginTop: 20,
+    marginBottom: 32,
   },
-  logo: {
-    width: 270,
-    height: 270,
+  lottie: {
+    width: 180,
+    height: 180,
+    marginBottom: 8,
   },
-  title: {
-    color: Colors.textPrimary,
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 16,
+  titleText: {
     textAlign: "center",
+    fontSize: 36,
+    fontWeight: "800",
+    marginBottom: 8,
   },
-  subtitle: {
-    color: Colors.textPrimary,
+  centerText: {
     textAlign: "center",
-    fontSize: 20,
-    lineHeight: 26,
-    paddingHorizontal: 20,
-    opacity: 0.9,
+    marginTop: 8,
+    lineHeight: 24,
+    paddingHorizontal: 16,
   },
-  highlight: {
-    fontSize: 20,
-    color: Colors.accentPrimary,
-    fontWeight: "bold",
-    fontStyle: "italic",
+  benefitsContainer: {
+    gap: 12,
   },
-  footer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
+  benefitCard: {
+    padding: 20,
   },
-  gradient: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 250,
+  benefitItem: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: Colors.background,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-    borderTopWidth: 1,
-    borderTopColor: Colors.surfaceSecondary,
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  benefitTextContainer: {
+    flex: 1,
+  },
+  benefitTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  benefitDescription: {
+    fontSize: 13,
+    color: Colors.textMuted,
+    lineHeight: 18,
   },
 });

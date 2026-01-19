@@ -1,12 +1,11 @@
-import { RelativePathString, router } from "expo-router";
-import React, { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
 import { CountrySelector } from "@/src/components/country-selector";
 import { DateInputCard } from "@/src/components/date-input-card";
+import { OnboardingLayout } from "@/src/components/layout/onboarding-layout";
+import { ModeToggle } from "@/src/components/mode-toggle";
 import { Colors } from "@/src/constants/colors";
-import { Button } from "../../src/components/ui/button";
+import { RelativePathString, router } from "expo-router";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { Card } from "../../src/components/ui/card";
 import { Text } from "../../src/components/ui/text";
 import { useOnboardingStore } from "../../src/features/onboarding/store/onboarding-store";
@@ -17,226 +16,140 @@ export default function LifeExpectancyScreen() {
 
   const [country, setCountry] = useState("");
   const [countryLifeExpectancy, setCountryLifeExpectancy] = useState(0);
-  const [isManualMode, setIsManualMode] = useState(false);
+  const [mode, setMode] = useState<"country" | "manual">("country");
+
   const [manualDeathDate, setManualDeathDate] = useState(() => {
     const defaultDate = new Date(dateOfBirth);
     defaultDate.setFullYear(defaultDate.getFullYear() + 80);
     return defaultDate;
   });
 
+  const isManualMode = mode === "manual";
+
   const handleContinue = () => {
     const lifeExpectancy = isManualMode
       ? Math.floor(
           (manualDeathDate.getTime() - dateOfBirth.getTime()) /
-            (1000 * 60 * 60 * 24 * 365.25)
+            (1000 * 60 * 60 * 24 * 365.25),
         )
       : countryLifeExpectancy;
 
     updateOnboardingData({
-      country,
+      country: isManualMode ? "Custom" : country,
       lifeExpectancy,
     });
+
     router.push("/onboarding/result" as RelativePathString);
-  };
-
-  const handleCountrySelect = (countryName: string, lifeExpectancy: number) => {
-    setCountry(countryName);
-    setCountryLifeExpectancy(lifeExpectancy);
-  };
-
-  const toggleManualMode = () => {
-    setIsManualMode(!isManualMode);
-    if (!isManualMode) {
-      const defaultDeathDate = new Date(dateOfBirth);
-      defaultDeathDate.setFullYear(defaultDeathDate.getFullYear() + 80);
-      setManualDeathDate(defaultDeathDate);
-    }
   };
 
   const calculateExpectedYears = () =>
     Math.floor(
       (manualDeathDate.getTime() - dateOfBirth.getTime()) /
-        (1000 * 60 * 60 * 24 * 365.25)
+        (1000 * 60 * 60 * 24 * 365.25),
     );
 
+  const handleCountrySelect = (name: string, expectancy: number) => {
+    setCountry(name);
+    setCountryLifeExpectancy(expectancy);
+  };
+
+  const canContinue = isManualMode || (country && countryLifeExpectancy > 0);
+
+  const modeOptions = [
+    { label: "By Country", value: "country", icon: "🌎" },
+    { label: "Custom Date", value: "manual", icon: "✏️" },
+  ];
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.contentContainer}>
-          <View style={styles.header}>
-            <Text variant="title" style={styles.title}>
-              Life Expectancy Setup
+    <OnboardingLayout
+      backgroundImage={require("../../assets/images/backgroud-intro.png")}
+      title="Life Expectancy"
+      subtitle="Choose how to calculate your life expectancy"
+      onNext={handleContinue}
+      nextDisabled={!canContinue}
+      currentStep={3}
+      totalSteps={6}
+      disableScroll={true}
+    >
+      <ModeToggle
+        options={modeOptions}
+        selectedValue={mode}
+        onValueChange={(value) => setMode(value as "country" | "manual")}
+        style={styles.modeToggle}
+      />
+
+      {mode === "country" && (
+        <Card style={styles.card}>
+          <View style={styles.sectionHeader}>
+            <Text variant="body" style={styles.sectionLabel}>
+              Choose Your Country
             </Text>
-            <Text style={styles.subtitle}>
-              Choose how to calculate your life expectancy
+            <Text style={styles.helperText}>
+              We&apos;ll use the average life expectancy
             </Text>
           </View>
 
-          <View style={styles.modeToggle}>
-            <Pressable
-              style={[
-                styles.toggleButton,
-                !isManualMode && styles.toggleButtonActive,
-              ]}
-              onPress={() => setIsManualMode(false)}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  !isManualMode && styles.toggleTextActive,
-                ]}
-              >
-                By Country
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.toggleButton,
-                isManualMode && styles.toggleButtonActive,
-              ]}
-              onPress={toggleManualMode}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  isManualMode && styles.toggleTextActive,
-                ]}
-              >
-                Manual Date
-              </Text>
-            </Pressable>
-          </View>
+          <CountrySelector
+            selectedCountry={country}
+            onCountrySelect={handleCountrySelect}
+            maxHeight={200}
+          />
 
-          {!isManualMode ? (
-            <Card style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text variant="body" style={styles.sectionLabel}>
-                  Choose Your Country
-                </Text>
-              </View>
-
-              <CountrySelector
-                selectedCountry={country}
-                onCountrySelect={handleCountrySelect}
-                maxHeight={300}
-              />
-            </Card>
-          ) : (
-            <DateInputCard
-              label="Choose Your Death Date"
-              date={manualDeathDate}
-              onDateChange={setManualDeathDate}
-              minimumDate={
-                new Date(dateOfBirth.getTime() + 365 * 24 * 60 * 60 * 1000)
-              }
-              infoText={`Expected: ${calculateExpectedYears()} years`}
-            />
+          {country && countryLifeExpectancy > 0 && (
+            <View style={styles.expectancyBadge}>
+              <Text style={styles.expectancyText}>
+                Average: {countryLifeExpectancy} years
+              </Text>
+            </View>
           )}
+        </Card>
+      )}
 
-          <View style={styles.spacer} />
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <Button
-            onPress={handleContinue}
-            disabled={!country && !isManualMode}
-            style={styles.continueButton}
-          >
-            Continue
-          </Button>
-        </View>
-      </View>
-    </SafeAreaView>
+      {mode === "manual" && (
+        <DateInputCard
+          label="Choose Your Expected Death Date"
+          date={manualDeathDate}
+          onDateChange={setManualDeathDate}
+          minimumDate={
+            new Date(dateOfBirth.getTime() + 365 * 24 * 60 * 60 * 1000)
+          }
+          infoText={`Expected lifespan: ${calculateExpectedYears()} years`}
+        />
+      )}
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    flex: 1,
-    padding: 20,
-    paddingBottom: 100,
-  },
-  header: {
-    marginBottom: 30,
-    alignItems: "center",
-  },
-  title: {
-    color: Colors.textPrimary,
-    textAlign: "center",
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: Colors.textSecondary,
-    textAlign: "center",
-    fontSize: 16,
-  },
-  section: {
+  modeToggle: {
     marginBottom: 24,
   },
+  card: {
+    padding: 20,
+  },
   sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 16,
   },
   sectionLabel: {
     color: Colors.textPrimary,
-    marginBottom: 12,
     fontSize: 16,
     fontWeight: "600",
+    marginBottom: 4,
   },
-  modeToggle: {
-    flexDirection: "row",
-    backgroundColor: Colors.inputBackground,
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 24,
+  helperText: {
+    fontSize: 13,
+    color: Colors.textMuted,
   },
-  toggleButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+  expectancyBadge: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 8,
     alignItems: "center",
   },
-  toggleButtonActive: {
-    backgroundColor: Colors.accentPrimary,
-  },
-  toggleText: {
-    color: Colors.textSecondary,
-    fontSize: 16,
+  expectancyText: {
+    color: Colors.accentPrimary,
+    fontSize: 15,
     fontWeight: "600",
-  },
-  toggleTextActive: {
-    color: Colors.background,
-  },
-  spacer: {
-    height: 20,
-  },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: Colors.background,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-    borderTopWidth: 1,
-    borderTopColor: Colors.surfaceSecondary,
-  },
-  continueButton: {
-    backgroundColor: Colors.accentPrimary,
-    borderRadius: 12,
-    paddingVertical: 16,
   },
 });

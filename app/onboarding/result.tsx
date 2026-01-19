@@ -1,359 +1,141 @@
-import { Button } from "@/src/components/ui/button";
+import { OnboardingLayout } from "@/src/components/layout/onboarding-layout";
 import { Card } from "@/src/components/ui/card";
-import { ProgressBar } from "@/src/components/ui/progress-bar";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { useOnboardingStore } from "@/src/features/onboarding/store/onboarding-store";
 import { getUserLifeStats } from "@/src/utils/user-stats";
 import { RelativePathString, router } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, View } from "react-native";
+
+const GRID_GAP = 12;
 
 export default function ResultScreen() {
   const { onboardingData } = useOnboardingStore();
 
   if (!onboardingData.dateOfBirth || !onboardingData.lifeExpectancy) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text variant="title" style={styles.errorTitle}>
-            Incomplete Data
-          </Text>
-          <Text variant="body" style={styles.errorMessage}>
-            Please complete the onboarding process first.
-          </Text>
-          <Button
-            onPress={() => router.push("/onboarding" as RelativePathString)}
-            style={styles.backButton}
-          >
-            Back to Onboarding
-          </Button>
-        </View>
-      </SafeAreaView>
-    );
+    return null;
   }
 
-  const { age, weeksLived, totalWeeks, remainingWeeks, lifeProgress } =
-    getUserLifeStats(onboardingData.dateOfBirth, onboardingData.lifeExpectancy);
+  const { age, weeksLived, remainingWeeks } = getUserLifeStats(
+    onboardingData.dateOfBirth,
+    onboardingData.lifeExpectancy,
+  );
+
+  const stats = [
+    {
+      label: "Current Age",
+      value: age.toString(),
+      colSpan: 1,
+    },
+    {
+      label: "Life Expectancy",
+      value: onboardingData.lifeExpectancy.toString(),
+      colSpan: 1,
+    },
+    {
+      label: "Weeks Lived",
+      value: weeksLived.toLocaleString(),
+      colSpan: 2,
+    },
+    {
+      label: "Weeks Remaining",
+      value: remainingWeeks.toLocaleString(),
+      colSpan: 2,
+      highlight: true,
+    },
+  ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.header}>
-            <Text variant="title" style={styles.title}>
-              Your Life Journey
-            </Text>
-          </View>
-
-          <Card style={styles.mainStatsCard}>
-            <View style={styles.progressSection}>
-              <Text variant="body" style={styles.progressLabel}>
-                Life Progress
-              </Text>
-              <ProgressBar percentageCompleted={lifeProgress.toFixed(0)} />
-            </View>
-
-            <View style={styles.divider} />
-
-            <View style={styles.statsGrid}>
-              <View style={styles.statItem}>
-                <Text variant="body" style={styles.statLabel}>
-                  Current Age
-                </Text>
-                <Text variant="subtitle" style={styles.statValue}>
-                  {age}
-                </Text>
-                <Text style={styles.statUnit}>years</Text>
-              </View>
-
-              <View style={styles.statItem}>
-                <Text variant="body" style={styles.statLabel}>
-                  Life Expectancy
-                </Text>
-                <Text variant="subtitle" style={styles.statValue}>
-                  {onboardingData.lifeExpectancy}
-                </Text>
-                <Text style={styles.statUnit}>years</Text>
-              </View>
-
-              <View style={styles.statItem}>
-                <Text variant="body" style={styles.statLabel}>
-                  Weeks Lived
-                </Text>
-                <Text variant="subtitle" style={styles.statValue}>
-                  {weeksLived.toLocaleString()}
-                </Text>
-                <Text style={styles.statUnit}>weeks</Text>
-              </View>
-
-              <View style={styles.statItem}>
-                <Text variant="body" style={styles.statLabel}>
-                  Weeks Remaining
-                </Text>
-                <Text variant="subtitle" style={styles.statValue}>
-                  {remainingWeeks.toLocaleString()}
-                </Text>
-                <Text style={styles.statUnit}>weeks</Text>
-              </View>
-            </View>
-          </Card>
-
-          <Card style={styles.previewCard}>
-            <Text variant="body" style={styles.previewLabel}>
-              Life Visualization Preview
-            </Text>
-            <Text style={styles.previewDescription}>
-              Each dot represents approximately {Math.round(totalWeeks / 100)}{" "}
-              weeks
-            </Text>
-            <View style={styles.miniLifeTable}>
-              {Array.from({ length: 100 }).map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.miniWeek,
-                    index < (weeksLived / totalWeeks) * 100 &&
-                      styles.miniWeekLived,
-                  ]}
-                />
-              ))}
-            </View>
-            <View style={styles.legend}>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendDot, styles.legendDotLived]} />
-                <Text style={styles.legendText}>Lived</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendDot, styles.legendDotRemaining]} />
-                <Text style={styles.legendText}>Remaining</Text>
-              </View>
-            </View>
-          </Card>
-          <View style={styles.spacer} />
-        </ScrollView>
-        <View style={styles.buttonContainer}>
-          <Button
-            onPress={() =>
-              router.push("/onboarding/personalization" as RelativePathString)
-            }
-            style={styles.nextButton}
+    <OnboardingLayout
+      backgroundImage={require("../../assets/images/backgroud-intro.png")}
+      title="Your Life Journey"
+      subtitle="A clear snapshot of where you are right now"
+      onNext={() =>
+        router.push("/onboarding/personalization" as RelativePathString)
+      }
+      nextLabel="Continue Setup"
+      currentStep={4}
+      totalSteps={6}
+    >
+      <View style={styles.gridContainer}>
+        {stats.map((item) => (
+          <View
+            key={item.label}
+            style={[
+              styles.gridItem,
+              item.colSpan === 2 ? styles.colSpan2 : styles.colSpan1,
+            ]}
           >
-            Continue Setup
-          </Button>
-        </View>
+            <Card>
+              <View style={styles.cardContent}>
+                <Text variant="caption" style={styles.statLabel}>
+                  {item.label}
+                </Text>
+
+                <View style={styles.valueRow}>
+                  <Text variant="body" style={styles.statValue}>
+                    {item.value}
+                  </Text>
+                </View>
+              </View>
+            </Card>
+          </View>
+        ))}
       </View>
-    </SafeAreaView>
+    </OnboardingLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 100,
-  },
-  header: {
-    alignItems: "center",
-  },
-  title: {
-    color: Colors.textPrimary,
-    textAlign: "center",
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: Colors.textSecondary,
-    textAlign: "center",
-    fontSize: 16,
-  },
-  mainStatsCard: {
-    marginBottom: 24,
-    padding: 24,
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-  },
-  progressSection: {
-    marginBottom: 20,
-  },
-  progressLabel: {
-    color: Colors.textPrimary,
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  progressBarContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  progressBar: {
-    flex: 1,
-    height: 8,
-    backgroundColor: Colors.surfaceSecondary,
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: Colors.accentPrimary,
-    borderRadius: 4,
-  },
-  progressText: {
-    color: Colors.accentPrimary,
-    fontSize: 14,
-    fontWeight: "600",
-    minWidth: 45,
-    textAlign: "right",
-  },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.surfaceSecondary,
-    marginVertical: 20,
-  },
-  statsGrid: {
+  gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 16,
+    gap: GRID_GAP,
+    marginBottom: 24,
   },
-  statItem: {
-    flex: 1,
-    minWidth: "45%",
+
+  gridItem: {},
+
+  colSpan1: {
+    width: "48%",
+    flexGrow: 1,
+  },
+
+  colSpan2: {
+    width: "100%",
+  },
+
+  cardContent: {
+    padding: 20,
     alignItems: "center",
-    padding: 16,
-    backgroundColor: Colors.surfaceSecondary,
-    borderRadius: 12,
+    justifyContent: "center",
+    minHeight: 110,
   },
+
   statLabel: {
     color: Colors.textMuted,
-    fontSize: 14,
+    fontSize: 12,
+    letterSpacing: 1,
     marginBottom: 8,
     textAlign: "center",
   },
-  statValue: {
-    color: Colors.accentPrimary,
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 4,
+
+  valueRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 6,
   },
+
+  statValue: {
+    fontSize: 32,
+    color: Colors.textSecondary,
+    fontWeight: "800",
+  },
+
   statUnit: {
     color: Colors.textMuted,
-    fontSize: 12,
-  },
-  previewCard: {
-    marginBottom: 24,
-    padding: 24,
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-  },
-  previewLabel: {
-    color: Colors.textPrimary,
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  previewDescription: {
-    color: Colors.textSecondary,
     fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  miniLifeTable: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 3,
-    marginBottom: 16,
-    justifyContent: "center",
-  },
-  miniWeek: {
-    width: 10,
-    height: 10,
-    backgroundColor: Colors.surfaceSecondary,
-    borderRadius: 2,
-  },
-  miniWeekLived: {
-    backgroundColor: Colors.accentPrimary,
-  },
-  legend: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 24,
-  },
-  legendItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  legendDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 2,
-  },
-  legendDotLived: {
-    backgroundColor: Colors.accentPrimary,
-  },
-  legendDotRemaining: {
-    backgroundColor: Colors.surfaceSecondary,
-  },
-  legendText: {
-    color: Colors.textSecondary,
-    fontSize: 14,
-  },
-  spacer: {
-    height: 20,
-  },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: Colors.background,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-    borderTopWidth: 1,
-    borderTopColor: Colors.surfaceSecondary,
-  },
-  nextButton: {
-    backgroundColor: Colors.accentPrimary,
-    borderRadius: 12,
-    paddingVertical: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorTitle: {
-    color: Colors.accentPrimary,
-    textAlign: "center",
-    marginBottom: 16,
-  },
-  errorMessage: {
-    color: Colors.textMuted,
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  backButton: {
-    minWidth: 200,
-    backgroundColor: Colors.accentPrimary,
+    fontWeight: "500",
   },
 });
