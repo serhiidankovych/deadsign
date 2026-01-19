@@ -41,7 +41,7 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
               useNativeDriver: true,
             }),
           ]),
-        ])
+        ]),
       ).start();
     }
   }, [visible]);
@@ -51,7 +51,7 @@ export const GlobalLoadingOverlay: React.FC<GlobalLoadingOverlayProps> = ({
   return (
     <View style={styles.overlay} pointerEvents="box-none">
       <LottieView
-        source={require("../../assets/images/deadsign.json")}
+        source={require("../../assets/images/splash.json")}
         autoPlay
         loop
         style={styles.lottie}
