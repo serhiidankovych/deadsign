@@ -6,7 +6,7 @@ import { Pressable, StyleSheet, View, ViewStyle } from "react-native";
 interface ModeToggleOption {
   label: string;
   value: string;
-  icon?: string;
+  icon?: React.ReactNode;
 }
 
 interface ModeToggleProps {
@@ -26,6 +26,13 @@ export const ModeToggle: React.FC<ModeToggleProps> = ({
     <View style={[styles.container, style]}>
       {options.map((option) => {
         const isSelected = selectedValue === option.value;
+
+        const iconNode = React.isValidElement(option.icon)
+          ? React.cloneElement(option.icon as any, {
+              color: isSelected ? Colors.background : Colors.accentPrimary,
+            })
+          : null;
+
         return (
           <Pressable
             key={option.value}
@@ -34,12 +41,17 @@ export const ModeToggle: React.FC<ModeToggleProps> = ({
             accessibilityRole="tab"
             accessibilityState={{ selected: isSelected }}
           >
-            <Text
-              style={[styles.buttonText, isSelected && styles.buttonTextActive]}
-            >
-              {option.icon && `${option.icon} `}
-              {option.label}
-            </Text>
+            <View style={styles.labelContainer}>
+              {iconNode}
+              <Text
+                style={[
+                  styles.buttonText,
+                  isSelected && styles.buttonTextActive,
+                ]}
+              >
+                {option.label}
+              </Text>
+            </View>
           </Pressable>
         );
       })}
@@ -70,6 +82,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
+  },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
   buttonText: {
     color: Colors.textSecondary,

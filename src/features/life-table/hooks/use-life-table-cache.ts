@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { File, Paths } from "expo-file-system";
-import { RefObject, useEffect, useState } from "react";
-import ViewShot from "react-native-view-shot";
+import { RefObject, useCallback, useEffect, useState } from "react";
+import type { LifeTableCanvasRef } from "../components/life-table-canvas";
 import type { TableData, User } from "../types";
 import { isNewDay } from "../utils/date-utils";
 
@@ -19,7 +19,7 @@ interface UseLifeTableCacheReturn {
 export const useLifeTableCache = (
   user: User,
   tableData: TableData,
-  viewShotRef: RefObject<ViewShot>
+  canvasRef: RefObject<LifeTableCanvasRef>,
 ): UseLifeTableCacheReturn => {
   const [cachedImageUri, setCachedImageUri] = useState<string | null>(null);
   const [isCacheLoading, setIsCacheLoading] = useState(true);
@@ -29,6 +29,7 @@ export const useLifeTableCache = (
     const loadImageOrPrepareCapture = async () => {
       try {
         const timestampStr = await AsyncStorage.getItem(CACHE_TIMESTAMP_KEY);
+
         if (
           timestampStr &&
           (await CACHE_FILE.exists) &&
@@ -50,30 +51,37 @@ export const useLifeTableCache = (
     loadImageOrPrepareCapture();
   }, [user.totalWeeks, user.weeksLived]);
 
-  const captureAndSaveImage = async () => {
-    if (viewShotRef.current?.capture) {
-      try {
-        const localUri = await viewShotRef.current.capture();
-        if (!localUri) {
-          throw new Error("Capture failed to produce a URI.");
-        }
-
-        const tempFile = new File(localUri);
-        if (await CACHE_FILE.exists) {
-          await CACHE_FILE.delete();
-        }
-        await tempFile.move(CACHE_FILE);
-
-        await AsyncStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
-
-        setCachedImageUri(`${CACHE_FILE.uri}?t=${Date.now()}`);
-        setIsReadyToCapture(false);
-      } catch (error) {
-        console.error("Failed to capture and save image:", error);
-        setIsReadyToCapture(false);
-      }
+  const captureAndSaveImage = useCallback(async () => {
+    if (!canvasRef.current?.makeImage) {
+      console.error("Canvas ref not available for capture");
+      return;
     }
-  };
+
+    try {
+      const base64 = await canvasRef.current.makeImage();
+      if (!base64) {
+        throw new Error("Capture failed to produce base64.");
+      }
+
+      const data = base64.replace(/^data:image\/png;base64,/, "");
+
+      if (await CACHE_FILE.exists) {
+        await CACHE_FILE.delete();
+      }
+
+      await CACHE_FILE.write(data, { encoding: "base64" });
+
+      await AsyncStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+
+      setCachedImageUri(`${CACHE_FILE.uri}?t=${Date.now()}`);
+      setIsReadyToCapture(false);
+
+      console.log("✅ Image cached successfully");
+    } catch (error) {
+      console.error("Failed to capture and save image:", error);
+      setIsReadyToCapture(false);
+    }
+  }, [canvasRef]);
 
   useEffect(() => {
     if (isReadyToCapture) {
@@ -81,9 +89,9 @@ export const useLifeTableCache = (
         captureAndSaveImage();
       });
     }
-  }, [isReadyToCapture]);
+  }, [isReadyToCapture, captureAndSaveImage]);
 
-  const invalidateCacheAndRecapture = async () => {
+  const invalidateCacheAndRecapture = useCallback(async () => {
     console.log("Forcing cache invalidation and recapture...");
     try {
       if (await CACHE_FILE.exists) {
@@ -95,7 +103,7 @@ export const useLifeTableCache = (
     } catch (error) {
       console.error("Failed to invalidate cache:", error);
     }
-  };
+  }, []);
 
   return {
     cachedImageUri,

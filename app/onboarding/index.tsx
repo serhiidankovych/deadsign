@@ -62,11 +62,12 @@ export default function IntroScreen() {
         <Text variant="title" style={styles.titleText}>
           Deadsign
         </Text>
-        <Text variant="subtitle" style={styles.centerText}>
-          The app for planning the most important thing —{" "}
-          <Text variant="highlight" color="accent">
-            your life.
-          </Text>
+
+        <Text variant="subtitle" color="secondary" style={styles.centerText}>
+          The app helps you design the most important thing —{" "}
+        </Text>
+        <Text variant="highlight" color="accent" style={styles.centerText}>
+          your life.
         </Text>
       </View>
 
@@ -114,9 +115,9 @@ const styles = StyleSheet.create({
   },
   centerText: {
     textAlign: "center",
-    marginTop: 8,
+    marginTop: 4,
     lineHeight: 24,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
   },
   benefitsContainer: {
     gap: 12,

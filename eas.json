@@ -1,4 +1,7 @@
 {
+  "cli": {
+    "appVersionSource": "local"
+  },
   "build": {
     "development": {
       "developmentClient": true,
@@ -7,7 +10,6 @@
         "buildType": "apk"
       }
     },
-
     "preview": {
       "developmentClient": true,
       "distribution": "internal",
@@ -15,14 +17,12 @@
         "buildType": "apk"
       }
     },
-
     "production-apk": {
       "developmentClient": false,
       "android": {
         "buildType": "apk"
       }
     },
-
     "production": {
       "developmentClient": false,
       "android": {

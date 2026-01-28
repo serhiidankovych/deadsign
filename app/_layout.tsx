@@ -10,16 +10,18 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 
 import {
-  ArchitectsDaughter_400Regular,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
   useFonts,
-} from "@expo-google-fonts/architects-daughter";
+} from "@expo-google-fonts/poppins";
 
 import {
-  Montserrat_400Regular,
-  Montserrat_500Medium,
-  Montserrat_600SemiBold,
-  Montserrat_700Bold,
-} from "@expo-google-fonts/montserrat";
+  Roboto_400Regular,
+  Roboto_500Medium,
+  Roboto_700Bold,
+} from "@expo-google-fonts/roboto";
 
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
@@ -42,6 +44,13 @@ function LayoutContent() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen
+          name="notification-presets"
+          options={{
+            presentation: "card",
+            animation: "slide_from_right",
+          }}
+        />
       </Stack>
 
       <StatusBar style="light" backgroundColor={Colors.background} />
@@ -53,12 +62,14 @@ function LayoutContent() {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    ArchitectsDaughter_400Regular,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
 
-    Montserrat_400Regular,
-    Montserrat_500Medium,
-    Montserrat_600SemiBold,
-    Montserrat_700Bold,
+    Roboto_400Regular,
+    Roboto_500Medium,
+    Roboto_700Bold,
   });
 
   useEffect(() => {

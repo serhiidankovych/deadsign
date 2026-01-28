@@ -28,35 +28,35 @@ const VARIANT_STYLES: Record<TextVariant, TextStyle> = {
   title: {
     fontSize: 30,
     lineHeight: 38,
-    fontFamily: "Montserrat_700Bold",
+    fontFamily: "Poppins_700Bold",
     letterSpacing: -0.5,
   },
 
   subtitle: {
     fontSize: 20,
     lineHeight: 28,
-    fontFamily: "ArchitectsDaughter_400Regular",
+    fontFamily: "Poppins_500Medium",
     letterSpacing: 0.4,
   },
 
   body: {
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: "Montserrat_400Regular",
+    fontFamily: "Roboto_400Regular",
     letterSpacing: 0.1,
   },
 
   caption: {
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: "Montserrat_400Regular",
+    fontFamily: "Roboto_400Regular",
     letterSpacing: 0.3,
   },
 
   highlight: {
     fontSize: 18,
     lineHeight: 24,
-    fontFamily: "ArchitectsDaughter_400Regular",
+    fontFamily: "Poppins_500Medium",
     letterSpacing: 0.6,
   },
 };

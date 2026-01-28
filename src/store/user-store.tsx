@@ -2,8 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { File, Paths } from "expo-file-system";
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
 } from "react";
@@ -112,13 +114,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       try {
+        const now = Date.now();
         const timestampStr = await AsyncStorage.getItem(CACHE_TIMESTAMP_KEY);
         const lastUpdateTimestamp = timestampStr
           ? parseInt(timestampStr, 10)
           : 0;
 
-        if (isNewDay(lastUpdateTimestamp, Date.now())) {
+        if (isNewDay(lastUpdateTimestamp, now)) {
           const updatedUser = recalculateLiveUserData(state.user);
+          await AsyncStorage.setItem(CACHE_TIMESTAMP_KEY, now.toString());
           dispatch({ type: "SET_USER", payload: updatedUser });
         }
       } catch (error) {
@@ -126,13 +130,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
-    handleAppStateChange("active");
+    if (state.user) {
+      handleAppStateChange("active");
+    }
 
     const subscription = AppState.addEventListener(
       "change",
       handleAppStateChange,
     );
-
     return () => {
       subscription.remove();
     };
@@ -180,37 +185,57 @@ export const useUserStore = () => {
 
   const { state, dispatch } = context;
 
-  const setUser = async (
-    userData: Omit<User, "currentAge" | "weeksLived" | "totalWeeks">,
-  ) => {
-    const CACHE_FILE = new File(Paths.document, "life_table_cache.png");
-    try {
-      if (await CACHE_FILE.exists) {
-        await CACHE_FILE.delete();
+  const setUser = useCallback(
+    async (
+      userData: Omit<User, "currentAge" | "weeksLived" | "totalWeeks">,
+    ) => {
+      const prevUser = state.user;
+
+      const prevDob = prevUser ? new Date(prevUser.dateOfBirth).getTime() : 0;
+      const newDob = new Date(userData.dateOfBirth).getTime();
+
+      const hasVisualChanges =
+        !prevUser ||
+        prevUser.lifeExpectancy !== userData.lifeExpectancy ||
+        prevDob !== newDob;
+
+      if (hasVisualChanges) {
+        const CACHE_FILE = new File(Paths.document, "life_table_cache.png");
+        try {
+          if (await CACHE_FILE.exists) {
+            await CACHE_FILE.delete();
+          }
+          await AsyncStorage.removeItem(CACHE_TIMESTAMP_KEY);
+        } catch (error) {
+          console.error(
+            "Error clearing LifeTable cache on user update:",
+            error,
+          );
+        }
       }
-      await AsyncStorage.removeItem(CACHE_TIMESTAMP_KEY);
-    } catch (error) {
-      console.error("Error clearing LifeTable cache on user update:", error);
-    }
 
-    const totalWeeks = userData.lifeExpectancy * 52;
-    const user = recalculateLiveUserData({
-      ...userData,
-      currentAge: 0,
-      weeksLived: 0,
-      totalWeeks,
-    });
-    dispatch({ type: "SET_USER", payload: user });
-  };
+      const totalWeeks = userData.lifeExpectancy * 52;
+      const user = recalculateLiveUserData({
+        ...userData,
+        currentAge: 0,
+        weeksLived: 0,
+        totalWeeks,
+      });
 
-  const refreshUser = () => {
+      await AsyncStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+      dispatch({ type: "SET_USER", payload: user });
+    },
+    [state.user, dispatch],
+  );
+
+  const refreshUser = useCallback(() => {
     if (state.user) {
       const updatedUser = recalculateLiveUserData(state.user);
       dispatch({ type: "SET_USER", payload: updatedUser });
     }
-  };
+  }, [state.user, dispatch]);
 
-  const clearUser = async () => {
+  const clearUser = useCallback(async () => {
     try {
       await AsyncStorage.removeItem("user_data");
 
@@ -228,21 +253,32 @@ export const useUserStore = () => {
       await clearOnboardingDataDirectly();
 
       dispatch({ type: "CLEAR_USER" });
-
       console.log("✅ All data cleared successfully");
     } catch (error) {
       console.error("❌ Error clearing user data:", error);
-
       dispatch({ type: "CLEAR_USER" });
     }
-  };
+  }, [dispatch]);
 
-  return {
-    user: state.user,
-    isOnboarded: state.isOnboarded,
-    isLoading: state.isLoading,
-    setUser,
-    clearUser,
-    refreshUser,
-  };
+  return useMemo(
+    () => ({
+      user: state.user,
+      isOnboarded: state.isOnboarded,
+      isLoading: state.isLoading,
+      setUser,
+      clearUser,
+      refreshUser,
+    }),
+    [
+      state.user,
+      state.isOnboarded,
+      state.isLoading,
+      setUser,
+      clearUser,
+      refreshUser,
+    ],
+  );
+};
+export const getYearLabel = (years: number): string => {
+  return years === 1 ? "year" : "years";
 };

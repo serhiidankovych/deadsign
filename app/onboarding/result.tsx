@@ -30,17 +30,17 @@ export default function ResultScreen() {
     },
     {
       label: "Life Expectancy",
-      value: onboardingData.lifeExpectancy.toString(),
+      value: onboardingData.lifeExpectancy.toFixed(0),
       colSpan: 1,
     },
     {
       label: "Weeks Lived",
-      value: weeksLived.toLocaleString(),
+      value: weeksLived.toFixed(0),
       colSpan: 2,
     },
     {
       label: "Weeks Remaining",
-      value: remainingWeeks.toLocaleString(),
+      value: remainingWeeks.toFixed(0),
       colSpan: 2,
       highlight: true,
     },

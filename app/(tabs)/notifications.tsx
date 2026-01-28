@@ -8,6 +8,7 @@ import {
   useNotificationStore,
 } from "@/src/features/notification/store/notification-store";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
@@ -132,8 +133,50 @@ export default function NotificationsScreen() {
             </View>
           )}
 
+          {settings.enabled && settings.customNotifications.length === 0 && (
+            <Pressable
+              style={styles.presetsBanner}
+              onPress={() => router.push("/notification-presets" as any)}
+            >
+              <View style={styles.presetsBannerIcon}>
+                <Ionicons
+                  name="sparkles"
+                  size={24}
+                  color={Colors.accentPrimary}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.presetsBannerTitle}>
+                  Quick Start Templates
+                </Text>
+                <Text style={styles.presetsBannerText}>
+                  Choose from pre-made reminder templates
+                </Text>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={Colors.textMuted}
+              />
+            </Pressable>
+          )}
+
           <View style={styles.listHeader}>
             <Text style={styles.sectionTitle}>Your Reminders</Text>
+            {settings.enabled && settings.customNotifications.length > 0 && (
+              <Pressable
+                style={styles.presetsLink}
+                onPress={() => router.push("/notification-presets" as any)}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="apps-outline"
+                  size={16}
+                  color={Colors.accentPrimary}
+                />
+                <Text style={styles.presetsLinkText}>Templates</Text>
+              </Pressable>
+            )}
           </View>
         </View>
       </View>
@@ -178,24 +221,6 @@ export default function NotificationsScreen() {
                     color={Colors.border}
                     style={{ opacity: 0.15 }}
                   />
-                </View>
-
-                <View style={styles.tileHeader}>
-                  <View
-                    style={[
-                      styles.statusPill,
-                      !n.enabled && styles.statusPillInactive,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.statusText,
-                        !n.enabled && styles.statusTextInactive,
-                      ]}
-                    >
-                      {n.enabled ? "ACTIVE" : "PAUSED"}
-                    </Text>
-                  </View>
                 </View>
 
                 <View>
@@ -293,8 +318,6 @@ const styles = StyleSheet.create({
   topCard: {
     padding: 16,
     borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
   },
   globalRow: {
     flexDirection: "row",
@@ -336,25 +359,66 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     flex: 1,
   },
+  presetsBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    backgroundColor: Colors.accentPrimary + "08",
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: Colors.accentPrimary + "30",
+  },
+  presetsBannerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.accentPrimary + "20",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  presetsBannerTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+  },
+  presetsBannerText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
   listHeader: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
     borderColor: Colors.border + "40",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "800",
     color: Colors.textPrimary,
   },
+  presetsLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  presetsLinkText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: Colors.accentPrimary,
+  },
   tile: {
     width: "48.5%",
     aspectRatio: 1,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.surfaceSecondary,
     borderRadius: 24,
     padding: 16,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
     justifyContent: "space-between",
     overflow: "hidden",
   },
@@ -373,12 +437,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: Colors.success + "30",
   },
   statusPillInactive: {
-    backgroundColor: Colors.border,
-    borderColor: "transparent",
+    backgroundColor: Colors.warning + "15",
+    color: Colors.textPrimary,
   },
   statusText: {
     fontSize: 9,
@@ -386,7 +448,7 @@ const styles = StyleSheet.create({
     color: Colors.success,
   },
   statusTextInactive: {
-    color: Colors.textMuted,
+    color: Colors.warning,
   },
   tileTitle: {
     fontSize: 14,
