@@ -1,8 +1,10 @@
+import { ModeToggle } from "@/src/components/mode-toggle";
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -152,6 +154,31 @@ export function NotificationEditModal({
 
   const canSave = title.trim().length > 0;
 
+  const modeOptions = [
+    {
+      label: "Custom",
+      value: "custom",
+      icon: (
+        <Ionicons
+          name="create-outline"
+          size={18}
+          color={Colors.accentPrimary}
+        />
+      ),
+    },
+    {
+      label: "Life Stats",
+      value: "stats",
+      icon: (
+        <Ionicons
+          name="stats-chart-outline"
+          size={18}
+          color={Colors.accentPrimary}
+        />
+      ),
+    },
+  ];
+
   return (
     <Modal
       visible={visible}
@@ -160,7 +187,12 @@ export function NotificationEditModal({
       onRequestClose={handleClose}
     >
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
+        <LinearGradient
+          colors={[Colors.surface, Colors.background]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={styles.header}
+        >
           <Pressable onPress={handleClose} hitSlop={10}>
             <Text style={styles.cancelBtn}>Cancel</Text>
           </Pressable>
@@ -175,7 +207,7 @@ export function NotificationEditModal({
           >
             <Text style={styles.saveBtn}>Save</Text>
           </Pressable>
-        </View>
+        </LinearGradient>
 
         <ScrollView
           contentContainerStyle={styles.content}
@@ -206,51 +238,12 @@ export function NotificationEditModal({
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Content Type</Text>
 
-            <View style={styles.segmentedControl}>
-              <Pressable
-                style={[
-                  styles.segBtn,
-                  mode === "custom" && styles.segBtnActive,
-                ]}
-                onPress={() => setMode("custom")}
-              >
-                <Ionicons
-                  name="create-outline"
-                  size={18}
-                  color={
-                    mode === "custom" ? Colors.background : Colors.textSecondary
-                  }
-                />
-                <Text
-                  style={[
-                    styles.segText,
-                    mode === "custom" && styles.segTextActive,
-                  ]}
-                >
-                  Custom
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[styles.segBtn, mode === "stats" && styles.segBtnActive]}
-                onPress={() => setMode("stats")}
-              >
-                <Ionicons
-                  name="stats-chart-outline"
-                  size={18}
-                  color={
-                    mode === "stats" ? Colors.background : Colors.textSecondary
-                  }
-                />
-                <Text
-                  style={[
-                    styles.segText,
-                    mode === "stats" && styles.segTextActive,
-                  ]}
-                >
-                  Life Stats
-                </Text>
-              </Pressable>
-            </View>
+            <ModeToggle
+              options={modeOptions}
+              selectedValue={mode}
+              onValueChange={(val) => setMode(val as "custom" | "stats")}
+              style={styles.modeToggle}
+            />
 
             <View style={styles.inputContainer}>
               <Ionicons
@@ -441,7 +434,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-    backgroundColor: Colors.surface,
   },
   headerTitle: { fontWeight: "700", fontSize: 17, color: Colors.textPrimary },
   cancelBtn: { color: Colors.textSecondary, fontSize: 16 },
@@ -450,8 +442,7 @@ const styles = StyleSheet.create({
   activeCard: {
     padding: 16,
     backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
+
     borderRadius: 16,
   },
   row: {
@@ -471,45 +462,20 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginLeft: 4,
   },
+  modeToggle: {
+    marginBottom: 4,
+  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: Colors.surface,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
+
     borderRadius: 12,
   },
   inputIcon: { marginLeft: 16 },
   input: { flex: 1, padding: 16, color: Colors.textPrimary, fontSize: 16 },
   textArea: { height: 100, textAlignVertical: "top" },
-  segmentedControl: {
-    flexDirection: "row",
-    backgroundColor: Colors.inputBackground,
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 4,
-  },
-  segBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderRadius: 8,
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 6,
-  },
-  segBtnActive: {
-    backgroundColor: Colors.accentPrimary,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  segText: { color: Colors.textSecondary, fontWeight: "600", fontSize: 14 },
-  segTextActive: { color: Colors.background, fontWeight: "700" },
 
-  // Stats Grid Styles
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -520,15 +486,14 @@ const styles = StyleSheet.create({
     width: "48.2%",
     paddingVertical: 20,
     borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
+
     backgroundColor: Colors.surface,
     alignItems: "center",
     position: "relative",
   },
   statCardActive: {
     borderColor: Colors.accentPrimary,
-    backgroundColor: Colors.accentPrimary + "08", // Light tint
+    backgroundColor: Colors.accentPrimary + "08",
     transform: [{ scale: 1.02 }],
   },
   iconCircle: {
@@ -553,8 +518,6 @@ const styles = StyleSheet.create({
   timeBtn: {
     backgroundColor: Colors.surface,
     borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
   },
   timeBtnContent: {
     flexDirection: "row",
@@ -582,8 +545,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
   },
   daysHeader: {
     flexDirection: "row",
@@ -600,8 +561,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.inputBackground,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
   dayChipActive: {
     backgroundColor: Colors.accentPrimary,
@@ -618,8 +577,6 @@ const styles = StyleSheet.create({
     padding: 18,
     borderRadius: 16,
     backgroundColor: Colors.surface,
-    borderWidth: 1.5,
-    borderColor: Colors.error + "40",
   },
   deleteBtnText: { color: Colors.error, fontWeight: "700", fontSize: 16 },
 
