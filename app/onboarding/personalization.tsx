@@ -2,15 +2,14 @@ import { OnboardingLayout } from "@/src/components/layout/onboarding-layout";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { useOnboardingStore } from "@/src/features/onboarding/store/onboarding-store";
+import { Ionicons } from "@expo/vector-icons";
 import { RelativePathString, router } from "expo-router";
 import React, { useState } from "react";
-import { Animated, StyleSheet, TextInput, View } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 
 export default function PersonalizationScreen() {
   const { onboardingData, updateOnboardingData } = useOnboardingStore();
   const [name, setName] = useState(onboardingData.name || "");
-
-  const borderAnim = React.useRef(new Animated.Value(0)).current;
 
   const handleContinue = () => {
     if (name.trim()) {
@@ -23,11 +22,6 @@ export default function PersonalizationScreen() {
     updateOnboardingData({ name: "" });
     router.push("/onboarding/final" as RelativePathString);
   };
-
-  const borderColor = borderAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["rgba(255, 255, 255, 0.1)", Colors.accentPrimary],
-  });
 
   return (
     <OnboardingLayout
@@ -43,10 +37,18 @@ export default function PersonalizationScreen() {
     >
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Your Name</Text>
-        <Animated.View style={[styles.inputWrapper, { borderColor }]}>
+
+        <View style={styles.inputWrapper}>
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color={Colors.textMuted}
+            style={styles.inputIcon}
+          />
           <TextInput
             style={styles.input}
             value={name}
+            maxLength={25}
             onChangeText={setName}
             placeholder="Enter your name"
             placeholderTextColor={Colors.textMuted}
@@ -56,7 +58,7 @@ export default function PersonalizationScreen() {
             onSubmitEditing={handleContinue}
             autoFocus
           />
-        </Animated.View>
+        </View>
       </View>
     </OnboardingLayout>
   );
@@ -73,14 +75,19 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   inputWrapper: {
-    borderWidth: 2,
+    flexDirection: "row",
+    alignItems: "center",
     borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: Colors.surface,
+  },
+  inputIcon: {
+    marginLeft: 16,
   },
   input: {
-    padding: 18,
+    flex: 1,
+    padding: 16,
     color: Colors.textPrimary,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "500",
   },
   preview: {

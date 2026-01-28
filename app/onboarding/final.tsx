@@ -7,12 +7,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import { Animated, StyleSheet, View } from "react-native";
-import { quotes } from "../../src/data/quotes";
 
 export default function FinalScreen() {
   const { onboardingData, clearOnboardingData } = useOnboardingStore();
   const { setUser } = useUserStore();
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnim = React.useRef(new Animated.Value(0.95)).current;
@@ -79,21 +77,7 @@ export default function FinalScreen() {
             Welcome, {userName}!
           </Text>
 
-          <Text style={styles.subGreeting}>Your life calendar is ready</Text>
-        </View>
-
-        <View style={styles.quoteContainer}>
-          <View style={styles.quoteIcon}>
-            <Text style={styles.quoteSymbol}>
-              <Ionicons name="book" size={24} color={Colors.accentPrimary} />
-            </Text>
-          </View>
-          <Text variant="body" style={styles.quote}>
-            {randomQuote.text}
-          </Text>
-          <Text variant="caption" style={styles.author}>
-            — {randomQuote.author}
-          </Text>
+          <Text style={styles.subGreeting}>Your life table is ready</Text>
         </View>
       </Animated.View>
     </OnboardingLayout>
