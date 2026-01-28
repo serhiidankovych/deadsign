@@ -24,6 +24,8 @@ interface CountryRecord {
 interface CountrySelectorProps {
   selectedCountry: string;
   onCountrySelect: (countryName: string, lifeExpectancy: number) => void;
+
+  ListHeaderComponent?: React.ReactElement;
   maxHeight?: number;
   style?: StyleProp<ViewStyle>;
 }
@@ -74,6 +76,7 @@ CountryItem.displayName = "CountryItem";
 export const CountrySelector: React.FC<CountrySelectorProps> = ({
   selectedCountry,
   onCountrySelect,
+  ListHeaderComponent,
   maxHeight,
   style,
 }) => {
@@ -81,7 +84,6 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
 
   const countries = useMemo(() => {
     const records = (lifeExpectancyData.records || []) as CountryRecord[];
-
     return records.sort((a, b) => a.countryName.localeCompare(b.countryName));
   }, []);
 
@@ -106,8 +108,9 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
     [selectedCountry, onCountrySelect],
   );
 
-  return (
-    <View style={[styles.container, style]}>
+  const renderHeader = () => (
+    <View>
+      {ListHeaderComponent}
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"
@@ -129,7 +132,11 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
           </Pressable>
         )}
       </View>
+    </View>
+  );
 
+  return (
+    <View style={[styles.container, style]}>
       <View
         style={[
           styles.listContainer,
@@ -139,10 +146,13 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
         <FlatList
           data={filteredCountries}
           renderItem={renderItem}
+          ListHeaderComponent={renderHeader}
           keyExtractor={(item) => item.countryCode}
           initialNumToRender={10}
           windowSize={5}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          keyboardShouldPersistTaps="handled"
           getItemLayout={(_, index) => ({
             length: 72,
             offset: 72 * index,
@@ -173,6 +183,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     marginBottom: 12,
+
+    marginTop: 8,
     borderWidth: 1,
     borderColor: Colors.surfaceSecondary,
     height: 48,
