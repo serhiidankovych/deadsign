@@ -1,12 +1,18 @@
 import { Colors } from "@/src/constants/colors";
-import React, {
-  RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
+import { File, Paths } from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -17,14 +23,15 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
-import ViewShot from "react-native-view-shot";
-import { useLifeTableCache } from "../hooks/use-life-table-cache";
+
 import { useLifeTableData } from "../hooks/use-life-table-data";
 import type { LifeTableProps } from "../types";
-import { CachedImage } from "./cached-image";
-import { LifeTableCanvas } from "./life-table-canvas";
+import {
+  CANVAS_PADDING,
+  LifeTableCanvas,
+  LifeTableCanvasRef,
+} from "./life-table-canvas";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -38,17 +45,26 @@ export const LifeTable: React.FC<LifeTablePropsWithCallback> = ({
   onLoadingChange,
   isFullScreen = false,
 }) => {
-  const viewShotRef = useRef<ViewShot>(null);
-  const opacity = useSharedValue(0);
+  const canvasRef = useRef<LifeTableCanvasRef>(null);
   const tableData = useLifeTableData(user);
 
-  const aspectRatio = tableData.fullWidth / tableData.fullHeight;
+  const [isSaving, setIsSaving] = useState(false);
 
-  const containerWidth = isFullScreen ? SCREEN_WIDTH : SCREEN_WIDTH - 32;
+  const NORMAL_MODE_PADDING = 8;
+
+  const canvasVisualWidth =
+    tableData.fullWidth + CANVAS_PADDING.LEFT + CANVAS_PADDING.RIGHT;
+  const canvasVisualHeight =
+    tableData.fullHeight + CANVAS_PADDING.TOP + CANVAS_PADDING.BOTTOM;
+
+  const aspectRatio = canvasVisualWidth / canvasVisualHeight;
+
+  const containerWidth = isFullScreen
+    ? SCREEN_WIDTH
+    : SCREEN_WIDTH - 32 - NORMAL_MODE_PADDING * 2;
 
   const renderHeight = containerWidth / aspectRatio;
   const renderWidth = containerWidth;
-
   const shouldCenterVertically = isFullScreen && renderHeight < SCREEN_HEIGHT;
 
   const scale = useSharedValue(1);
@@ -60,21 +76,11 @@ export const LifeTable: React.FC<LifeTablePropsWithCallback> = ({
 
   const [currentScale, setCurrentScale] = useState(1);
 
-  const { cachedImageUri, isReadyToCapture } = useLifeTableCache(
-    user,
-    tableData,
-    viewShotRef as RefObject<ViewShot>
-  );
-
   useEffect(() => {
-    onLoadingChange?.(!cachedImageUri || isReadyToCapture);
-  }, [cachedImageUri, isReadyToCapture, onLoadingChange]);
-
-  useEffect(() => {
-    if (cachedImageUri && !isReadyToCapture) {
-      opacity.value = withTiming(1, { duration: 400 });
-    }
-  }, [cachedImageUri, isReadyToCapture]);
+    requestAnimationFrame(() => {
+      onLoadingChange?.(false);
+    });
+  }, [onLoadingChange]);
 
   const resetZoom = useCallback(() => {
     scale.value = withSpring(1);
@@ -89,6 +95,64 @@ export const LifeTable: React.FC<LifeTablePropsWithCallback> = ({
   useEffect(() => {
     resetZoom();
   }, [isFullScreen, resetZoom]);
+
+  const generateFile = async (): Promise<string | null> => {
+    try {
+      const base64Data = await canvasRef.current?.makeImage();
+      if (!base64Data) return null;
+
+      const cleanBase64 = base64Data.split("base64,")[1];
+
+      const binaryString = atob(cleanBase64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const file = new File(Paths.document, "life-table.png");
+      await file.write(bytes);
+
+      return file.uri;
+    } catch (error) {
+      console.error("Error generating file:", error);
+      return null;
+    }
+  };
+
+  const handleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission needed", "Please allow access to save photos.");
+        return;
+      }
+
+      const fileUri = await generateFile();
+      if (fileUri) {
+        await MediaLibrary.saveToLibraryAsync(fileUri);
+
+        try {
+          const file = new File(Paths.document, "life-table.png");
+          await file.delete();
+        } catch (cleanupError) {
+          console.log("Cleanup error (non-critical):", cleanupError);
+        }
+
+        Alert.alert("Saved", "Your Life Table has been saved to your photos!");
+      } else {
+        Alert.alert("Error", "Could not generate image.");
+      }
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Error", "Failed to save image.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
@@ -143,75 +207,87 @@ export const LifeTable: React.FC<LifeTablePropsWithCallback> = ({
 
   const composedGesture = Gesture.Race(
     doubleTap,
-    Gesture.Simultaneous(pinchGesture, panGesture)
+    Gesture.Simultaneous(pinchGesture, panGesture),
   );
 
   return (
-    <GestureHandlerRootView
-      style={[
-        styles.container,
-
-        { minHeight: isFullScreen ? SCREEN_HEIGHT : renderHeight },
-      ]}
-    >
-      {cachedImageUri && !isReadyToCapture && (
-        <Animated.View style={[styles.wrapper, { opacity }]}>
-          <View
-            style={[
-              styles.contentAlignment,
-              {
-                justifyContent: shouldCenterVertically
-                  ? "center"
-                  : "flex-start",
-
-                paddingTop: isFullScreen && !shouldCenterVertically ? 60 : 0,
-              },
-            ]}
-          >
-            <GestureDetector gesture={composedGesture}>
-              <Animated.View style={animatedStyle}>
-                <CachedImage
-                  uri={cachedImageUri}
-                  width={renderWidth}
-                  height={renderHeight}
-                />
-              </Animated.View>
-            </GestureDetector>
-          </View>
-
-          {isFullScreen && (
-            <View style={styles.controlsContainer}>
-              {currentScale > 1.1 && (
-                <View style={styles.zoomIndicator}>
-                  <Text style={styles.zoomText}>
-                    {currentScale.toFixed(1)}x
-                  </Text>
+    <GestureHandlerRootView style={styles.container}>
+      <View style={styles.wrapper}>
+        <View
+          style={[
+            styles.contentAlignment,
+            {
+              justifyContent: shouldCenterVertically ? "center" : "flex-start",
+              padding: 16,
+            },
+          ]}
+        >
+          <GestureDetector gesture={composedGesture}>
+            <Animated.View style={animatedStyle}>
+              <View
+                style={{
+                  width: canvasVisualWidth,
+                  height: canvasVisualHeight,
+                  transform: [{ scale: renderWidth / canvasVisualWidth }],
+                  transformOrigin: "top left",
+                  overflow: "visible",
+                }}
+              >
+                <View style={styles.tableContainer}>
+                  <LifeTableCanvas
+                    ref={canvasRef}
+                    user={user}
+                    tableData={tableData}
+                  />
                 </View>
-              )}
-            </View>
-          )}
-        </Animated.View>
-      )}
-
-      {isReadyToCapture && (
-        <View style={styles.captureContainer}>
-          <ViewShot
-            ref={viewShotRef}
-            options={{ format: "png", quality: 1.0 }}
-            style={{ width: tableData.fullWidth, height: tableData.fullHeight }}
-          >
-            <LifeTableCanvas user={user} tableData={tableData} />
-          </ViewShot>
+              </View>
+            </Animated.View>
+          </GestureDetector>
         </View>
-      )}
+
+        {isFullScreen && (
+          <View style={styles.bottomControls}>
+            {/* Action Buttons */}
+            <View style={styles.actionButtonsRow}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleSave}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <ActivityIndicator color={Colors.textPrimary} size="small" />
+                ) : (
+                  <>
+                    <Ionicons
+                      name="download-outline"
+                      size={22}
+                      color={Colors.textPrimary}
+                    />
+                    <Text style={styles.actionButtonText}>Save</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {/* Zoom Indicator */}
+            {currentScale > 1.1 && (
+              <View style={styles.zoomIndicator}>
+                <Text style={styles.zoomText}>{currentScale.toFixed(1)}x</Text>
+              </View>
+            )}
+          </View>
+        )}
+      </View>
     </GestureHandlerRootView>
   );
 };
 
+LifeTable.displayName = "LifeTable";
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    overflow: "hidden",
+    backgroundColor: Colors.background,
   },
   wrapper: {
     flex: 1,
@@ -219,45 +295,60 @@ const styles = StyleSheet.create({
   contentAlignment: {
     flex: 1,
     alignItems: "center",
+    overflow: "hidden",
   },
-  captureContainer: {
+  tableContainer: {},
+
+  bottomControls: {
     position: "absolute",
-    top: SCREEN_HEIGHT + 1000,
-    left: 0,
-    opacity: 0,
-  },
-  controlsContainer: {
-    position: "absolute",
-    bottom: 50,
+    bottom: 40,
     width: "100%",
     alignItems: "center",
-    justifyContent: "center",
     zIndex: 100,
+    gap: 16,
   },
-  zoomIndicator: {
+
+  actionButtonsRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.surface,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginBottom: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 30,
+    gap: 8,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
   },
-  zoomText: {
-    color: "white",
-    fontWeight: "bold",
+  actionButtonText: {
+    color: Colors.textPrimary,
+    fontWeight: "600",
     fontSize: 14,
   },
-  zoomButtons: {
-    flexDirection: "row",
-    gap: 20,
-  },
-  circleBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: Colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
+
+  zoomIndicator: {
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: "rgba(255, 255, 255, 0.15)",
+  },
+  zoomText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
   },
 });

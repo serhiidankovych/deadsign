@@ -13,6 +13,6 @@ export const CachedImage: React.FC<CachedImageProps> = ({
   height,
 }) => {
   return (
-    <Image source={{ uri }} style={{ width, height }} resizeMode="contain" />
+    <Image source={{ uri }} style={{ width, height }} resizeMode="cover" />
   );
 };
