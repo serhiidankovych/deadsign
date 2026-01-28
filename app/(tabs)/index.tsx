@@ -7,7 +7,7 @@ import { useLoadingStore } from "@/src/store/loading-store";
 import { useUserStore } from "@/src/store/user-store";
 import { calculateLifePercentage } from "@/src/utils/user-stats";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -72,22 +72,17 @@ export default function HomeScreen() {
   const { user } = useUserStore();
   const { setGlobalLoading } = useLoadingStore();
 
-  const hasInitialized = useRef(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-
-  useEffect(() => {
-    if (!hasInitialized.current) {
-      setGlobalLoading(true);
-      hasInitialized.current = true;
-    }
-  }, []);
 
   const handleLoadingChange = useCallback(
     (isLoading: boolean) => {
       if (!isLoading) {
         setGlobalLoading(false);
+
         setIsImageLoaded(true);
+      } else {
+        setIsImageLoaded(false);
       }
     },
     [setGlobalLoading],
@@ -130,13 +125,17 @@ export default function HomeScreen() {
               isFullScreen={false}
             />
             {isImageLoaded && (
-              <View style={styles.expandOverlay}>
+              <TouchableOpacity
+                style={styles.expandButton}
+                onPress={() => setIsFullScreen(true)}
+                activeOpacity={0.7}
+              >
                 <Ionicons
-                  name="resize-outline"
+                  name="expand-outline"
                   size={20}
-                  color={Colors.textSecondary}
+                  color={Colors.textMuted}
                 />
-              </View>
+              </TouchableOpacity>
             )}
           </Pressable>
         </View>
@@ -147,8 +146,11 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setIsFullScreen(false)}
+            activeOpacity={0.7}
           >
-            <Ionicons name="close" size={24} color={Colors.textSecondary} />
+            <View style={styles.closeButtonInner}>
+              <Ionicons name="close" size={24} color={Colors.textMuted} />
+            </View>
           </TouchableOpacity>
           <LifeTable
             user={user}
@@ -172,18 +174,21 @@ const styles = StyleSheet.create({
     minHeight: 350,
     position: "relative",
   },
-
-  expandOverlay: {
+  expandButton: {
     position: "absolute",
     bottom: 12,
     right: 12,
     backgroundColor: Colors.surface,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 2,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   skeletonContainer: {
     alignItems: "center",
@@ -198,5 +203,18 @@ const styles = StyleSheet.create({
   },
   loadingText: { color: Colors.textSecondary, fontWeight: "500" },
   fullScreenContainer: { flex: 1, backgroundColor: Colors.background },
-  closeButton: { position: "absolute", top: 50, right: 20, zIndex: 1000 },
+  closeButton: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    zIndex: 1000,
+  },
+  closeButtonInner: {
+    backgroundColor: Colors.surface,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
