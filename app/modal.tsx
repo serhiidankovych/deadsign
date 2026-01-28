@@ -1,83 +1,162 @@
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
-import { CountrySelector } from "@/src/components/country-selector";
+import { CountrySelectModal } from "@/src/components/country-select-modal";
 import { DateInputCard } from "@/src/components/date-input-card";
+import { ModeToggle } from "@/src/components/mode-toggle";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/colors";
 import { useLoadingStore } from "@/src/store/loading-store";
 import { useUserStore } from "@/src/store/user-store";
-import { calculateAge } from "@/src/utils/user-stats";
+import {
+  LIFE_CONSTANTS,
+  calculateYearsBetween,
+  getAgeLabel,
+  getExpectedDeathDate,
+  getLifeDateBounds,
+  getYearLabel,
+  isValidManualDeathDate,
+} from "@/src/utils/user-stats";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import React, { useCallback, useMemo, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ModalScreen() {
   const { user, setUser } = useUserStore();
   const { setGlobalLoading } = useLoadingStore();
 
-  const [name, setName] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState(new Date());
-  const [country, setCountry] = useState("");
-  const [countryLifeExpectancy, setCountryLifeExpectancy] = useState(0);
+  const initialDOB = useMemo(
+    () => (user?.dateOfBirth ? new Date(user.dateOfBirth) : new Date()),
+    [user?.dateOfBirth],
+  );
 
-  const [isManualMode, setIsManualMode] = useState(false);
-  const [manualDeathDate, setManualDeathDate] = useState(() => {
-    const defaultDate = new Date();
-    defaultDate.setFullYear(defaultDate.getFullYear() + 80);
-    return defaultDate;
-  });
-
-  useEffect(() => {
-    if (user) {
-      setName(user.name || "");
-      setDateOfBirth(user.dateOfBirth || new Date());
-      setCountry(user.country || "");
-      setCountryLifeExpectancy(user.lifeExpectancy || 0);
+  const initialManualDeathDate = useMemo(() => {
+    if (user?.dateOfBirth && user?.lifeExpectancy) {
+      return getExpectedDeathDate(
+        new Date(user.dateOfBirth),
+        user.lifeExpectancy,
+      );
     }
-  }, [user]);
+    return getExpectedDeathDate(initialDOB, LIFE_CONSTANTS.DEFAULT_EXPECTANCY);
+  }, [user, initialDOB]);
 
-  const handleSave = async () => {
-    setGlobalLoading(true);
-    const lifeExpectancy = isManualMode
-      ? Math.floor(
-          (manualDeathDate.getTime() - dateOfBirth.getTime()) /
-            (1000 * 60 * 60 * 24 * 365.25),
-        )
-      : countryLifeExpectancy;
+  const [name, setName] = useState(user?.name ?? "");
+  const [dateOfBirth, setDateOfBirth] = useState(initialDOB);
+  const [country, setCountry] = useState(user?.country ?? "");
+  const [countryLifeExpectancyState, setCountryLifeExpectancyState] = useState(
+    user?.lifeExpectancy ?? 0,
+  );
+  const [isManualMode, setIsManualMode] = useState(
+    user?.country === "Custom" || !user?.country,
+  );
+  const [manualDeathDate, setManualDeathDate] = useState(
+    initialManualDeathDate,
+  );
 
-    await setUser({ name, dateOfBirth, country, lifeExpectancy });
-    router.back();
-  };
+  const [showCountryModal, setShowCountryModal] = useState(false);
 
-  const handleCountrySelect = (countryName: string, lifeExpectancy: number) => {
-    setCountry(countryName);
-    setCountryLifeExpectancy(lifeExpectancy);
-  };
+  const { minDate: minDeathDate, maxDate: maxDeathDate } = useMemo(
+    () => getLifeDateBounds(dateOfBirth),
+    [dateOfBirth],
+  );
 
-  const calculateExpectedYears = () =>
-    Math.floor(
-      (manualDeathDate.getTime() - dateOfBirth.getTime()) /
-        (1000 * 60 * 60 * 24 * 365.25),
-    );
+  const manualYears = calculateYearsBetween(dateOfBirth, manualDeathDate);
+  const isManualValid = isValidManualDeathDate(dateOfBirth, manualDeathDate);
 
-  const toggleManualMode = () => {
-    setIsManualMode(!isManualMode);
-    if (!isManualMode) {
-      const defaultDeathDate = new Date(dateOfBirth);
-      defaultDeathDate.setFullYear(defaultDeathDate.getFullYear() + 80);
-      setManualDeathDate(defaultDeathDate);
+  const handleSave = useCallback(async () => {
+    try {
+      setGlobalLoading(true);
+      if (!name.trim()) return console.error("Name is required");
+
+      const lifeExpectancy = isManualMode
+        ? manualYears
+        : countryLifeExpectancyState;
+      if (lifeExpectancy <= 0) return;
+
+      await setUser({
+        name,
+        dateOfBirth,
+        country: isManualMode ? "Custom" : country,
+        lifeExpectancy,
+      });
+
+      router.back();
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+    } finally {
+      setGlobalLoading(false, 1000);
     }
-  };
+  }, [
+    isManualMode,
+    manualYears,
+    countryLifeExpectancyState,
+    name,
+    dateOfBirth,
+    country,
+    setUser,
+    setGlobalLoading,
+  ]);
+
+  const handleModeChange = useCallback(
+    (value: string) => {
+      const newIsManual = value === "manual";
+      setIsManualMode(newIsManual);
+      if (newIsManual) {
+        const years =
+          countryLifeExpectancyState > 0
+            ? countryLifeExpectancyState
+            : LIFE_CONSTANTS.DEFAULT_EXPECTANCY;
+        setManualDeathDate(getExpectedDeathDate(dateOfBirth, years));
+      }
+    },
+    [dateOfBirth, countryLifeExpectancyState],
+  );
+
+  const handleCountrySelect = useCallback(
+    (name: string, expectancy: number) => {
+      setCountry(name);
+      setCountryLifeExpectancyState(expectancy);
+    },
+    [],
+  );
+
+  const modeOptions = useMemo(
+    () => [
+      {
+        label: "By Country",
+        value: "country",
+        icon: (
+          <Ionicons
+            name="globe-outline"
+            size={18}
+            color={Colors.accentPrimary}
+          />
+        ),
+      },
+      {
+        label: "Custom Date",
+        value: "manual",
+        icon: (
+          <Ionicons
+            name="pencil-outline"
+            size={18}
+            color={Colors.accentPrimary}
+          />
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -85,7 +164,10 @@ export default function ModalScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={styles.header}>
+        <LinearGradient
+          colors={[Colors.surface, Colors.background]}
+          style={styles.header}
+        >
           <Pressable onPress={() => router.back()} style={styles.closeButton}>
             <Ionicons name="close" size={24} color={Colors.textPrimary} />
           </Pressable>
@@ -93,96 +175,122 @@ export default function ModalScreen() {
             Edit Profile
           </Text>
           <View style={styles.placeholder} />
-        </View>
+        </LinearGradient>
 
-        <View style={styles.contentContainer}>
-          <View style={styles.staticSection}>
-            <Card style={styles.card}>
-              <Text variant="body" style={styles.sectionLabel}>
-                Name
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
-                placeholder="Enter your name"
-                placeholderTextColor={Colors.placeholder}
-              />
-            </Card>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Card>
+            <Text variant="body" style={styles.label}>
+              Name
+            </Text>
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter your name"
+              placeholderTextColor={Colors.placeholder}
+              maxLength={25}
+            />
+          </Card>
 
+          <Card>
             <DateInputCard
-              label="Date of Birth"
+              label="Date of birth"
               date={dateOfBirth}
               onDateChange={setDateOfBirth}
               maximumDate={new Date()}
-              infoText={`Age: ${calculateAge(dateOfBirth)}`}
+              infoText={`You are ${getAgeLabel(dateOfBirth)}`}
             />
-          </View>
+          </Card>
 
-          <Card style={styles.flexibleCard}>
-            <Text variant="body" style={styles.sectionLabel}>
-              Life Expectancy Setup
+          <View style={styles.divider} />
+
+          <Card>
+            <Text variant="body" style={styles.label}>
+              Life Expectancy Method
             </Text>
+            <ModeToggle
+              options={modeOptions}
+              selectedValue={isManualMode ? "manual" : "country"}
+              onValueChange={handleModeChange}
+              style={styles.modeToggle}
+            />
+          </Card>
 
-            <View style={styles.modeToggle}>
+          {!isManualMode ? (
+            <Card>
+              <Text variant="body" style={styles.label}>
+                Country
+              </Text>
               <Pressable
-                style={[
-                  styles.toggleButton,
-                  !isManualMode && styles.toggleButtonActive,
-                ]}
-                onPress={() => setIsManualMode(false)}
+                style={styles.countrySelector}
+                onPress={() => setShowCountryModal(true)}
               >
-                <Text
-                  style={[
-                    styles.toggleText,
-                    !isManualMode && styles.toggleTextActive,
-                  ]}
-                >
-                  By Country
-                </Text>
+                <View style={styles.countrySelectorContent}>
+                  <Ionicons
+                    name="globe-outline"
+                    size={20}
+                    color={Colors.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.countrySelectorText,
+                      !country && styles.countrySelectorPlaceholder,
+                    ]}
+                  >
+                    {country || "Select a country"}
+                  </Text>
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={Colors.textSecondary}
+                />
               </Pressable>
-              <Pressable
-                style={[
-                  styles.toggleButton,
-                  isManualMode && styles.toggleButtonActive,
-                ]}
-                onPress={toggleManualMode}
-              >
-                <Text
-                  style={[
-                    styles.toggleText,
-                    isManualMode && styles.toggleTextActive,
-                  ]}
-                >
-                  Manual Date
-                </Text>
-              </Pressable>
-            </View>
 
-            {!isManualMode ? (
-              <CountrySelector
-                selectedCountry={country}
-                onCountrySelect={handleCountrySelect}
-                style={{ flex: 1 }}
-              />
-            ) : (
+              {countryLifeExpectancyState > 0 && (
+                <View style={styles.expectancyInfo}>
+                  <Text style={styles.expectancyText}>
+                    Expected lifespan: {countryLifeExpectancyState}{" "}
+                    {getYearLabel(countryLifeExpectancyState)}
+                  </Text>
+                </View>
+              )}
+            </Card>
+          ) : (
+            <Card>
               <DateInputCard
-                label="Death Date"
+                label="Choose your expected death date"
                 date={manualDeathDate}
                 onDateChange={setManualDeathDate}
-                minimumDate={
-                  new Date(dateOfBirth.getTime() + 365 * 24 * 60 * 60 * 1000)
+                minimumDate={minDeathDate}
+                maximumDate={maxDeathDate}
+                infoText={
+                  isManualValid
+                    ? `Expected lifespan: ${manualYears} ${getYearLabel(
+                        manualYears,
+                      )}`
+                    : "Please select a valid date"
                 }
-                infoText={`Lifespan: ${calculateExpectedYears()} yrs`}
               />
-            )}
-          </Card>
-        </View>
+            </Card>
+          )}
+        </ScrollView>
 
         <View style={styles.footer}>
           <Button onPress={handleSave}>Save Changes</Button>
         </View>
       </KeyboardAvoidingView>
+
+      <CountrySelectModal
+        visible={showCountryModal}
+        onClose={() => setShowCountryModal(false)}
+        selectedCountry={country}
+        onCountrySelect={handleCountrySelect}
+      />
     </SafeAreaView>
   );
 }
@@ -202,27 +310,17 @@ const styles = StyleSheet.create({
   title: { color: Colors.textPrimary },
   placeholder: { width: 32 },
 
-  contentContainer: {
-    flex: 1,
+  scrollContent: {
     padding: 16,
     gap: 16,
+    paddingBottom: 100,
   },
-  staticSection: {
-    gap: 16,
+  divider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: 4,
   },
-  card: {
-    padding: 16,
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-  },
-  flexibleCard: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    overflow: "hidden",
-  },
-  sectionLabel: {
+  label: {
     color: Colors.textSecondary,
     marginBottom: 8,
     fontSize: 14,
@@ -235,22 +333,43 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     fontSize: 16,
   },
-  modeToggle: {
+  modeToggle: { marginBottom: 0 },
+
+  countrySelector: {
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: Colors.inputBackground,
+    padding: 12,
     borderRadius: 12,
-    padding: 4,
-    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.surfaceSecondary,
   },
-  toggleButton: {
+  countrySelectorContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
     flex: 1,
-    paddingVertical: 8,
+  },
+  countrySelectorText: {
+    color: Colors.textPrimary,
+    fontSize: 16,
+  },
+  countrySelectorPlaceholder: {
+    color: Colors.placeholder,
+  },
+  expectancyInfo: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 8,
     alignItems: "center",
   },
-  toggleButtonActive: { backgroundColor: Colors.accentPrimary },
-  toggleText: { color: Colors.textSecondary, fontWeight: "600" },
-  toggleTextActive: { color: Colors.background },
+  expectancyText: {
+    color: Colors.accentPrimary,
+    fontSize: 14,
+    fontWeight: "600",
+  },
 
   footer: {
     padding: 16,
