@@ -92,8 +92,8 @@ const styles = StyleSheet.create({
 
   text: {
     fontSize: 16,
-    fontFamily: "Montserrat_600SemiBold",
     letterSpacing: 0.3,
+    fontWeight: "800",
   },
 
   primaryText: {
